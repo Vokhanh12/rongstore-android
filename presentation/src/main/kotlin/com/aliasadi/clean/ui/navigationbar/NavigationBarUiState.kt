@@ -9,7 +9,8 @@ import com.aliasadi.clean.navigation.Page
 data class NavigationBarUiState(
     val bottomItems: List<BottomNavigationBarItem> = listOf(
         BottomNavigationBarItem.Feed,
-        BottomNavigationBarItem.MyFavorites
+        BottomNavigationBarItem.MyFavorites,
+        BottomNavigationBarItem.Map
     )
 )
 
@@ -20,4 +21,5 @@ sealed class BottomNavigationBarItem(
 ) {
     data object Feed : BottomNavigationBarItem("Feed", imageVector = Icons.Default.DynamicFeed, Page.Feed)
     data object MyFavorites : BottomNavigationBarItem("My Favorites", imageVector = Icons.Default.FavoriteBorder, Page.Favorites)
+    data object Map : BottomNavigationBarItem("Map", imageVector = Icons.Default.FavoriteBorder, Page.Map)
 }

@@ -51,6 +51,7 @@ kotlin {
 
 dependencies {
     implementation(project(":data"))
+    implementation(libs.material3)
     testImplementation(project(":core-test"))
 
     // Kover Coverage (All Modules)
@@ -124,4 +125,10 @@ dependencies {
 
     // Serialization
     implementation(libs.kotlinx.serialization.json)
+
+    // https://mvnrepository.com/artifact/org.maplibre.gl/android-sdk
+    implementation("org.maplibre.gl:android-sdk:11.12.1")
+
+
+
 }

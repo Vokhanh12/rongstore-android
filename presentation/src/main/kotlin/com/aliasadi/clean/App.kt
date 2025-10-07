@@ -13,6 +13,8 @@ import coil.request.CachePolicy
 import coil.util.DebugLogger
 import com.aliasadi.clean.workers.SyncWork
 import dagger.hilt.android.HiltAndroidApp
+import org.maplibre.android.MapLibre
+import org.maplibre.android.WellKnownTileServer
 import javax.inject.Inject
 
 /**
@@ -34,6 +36,12 @@ class App : Application(), Configuration.Provider, ImageLoaderFactory {
 
     override fun onCreate() {
         super.onCreate()
+
+        MapLibre.getInstance(
+            applicationContext,
+            "",
+            WellKnownTileServer.MapLibre
+        )
 
         workManager.enqueueUniqueWork(
             SyncWork::class.java.simpleName,

@@ -10,6 +10,8 @@ import com.aliasadi.clean.ui.favorites.FavoritesViewModel
 import com.aliasadi.clean.ui.feed.FeedPage
 import com.aliasadi.clean.ui.feed.FeedViewModel
 import com.aliasadi.clean.ui.main.MainRouter
+import com.aliasadi.clean.ui.map.MapPage
+import com.aliasadi.clean.ui.map.MapViewModel
 import com.aliasadi.clean.util.composableHorizontalSlide
 import com.aliasadi.clean.util.sharedViewModel
 import kotlin.reflect.KClass
@@ -36,6 +38,13 @@ fun NavigationBarNestedGraph(
         composableHorizontalSlide<Page.Favorites> {
             val viewModel = hiltViewModel<FavoritesViewModel>()
             FavoritesPage(
+                mainRouter = MainRouter(mainNavController),
+                viewModel = viewModel,
+            )
+        }
+        composableHorizontalSlide<Page.Map> {
+            val viewModel = hiltViewModel<MapViewModel>()
+            MapPage(
                 mainRouter = MainRouter(mainNavController),
                 viewModel = viewModel,
             )

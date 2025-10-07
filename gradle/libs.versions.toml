@@ -43,6 +43,7 @@ composeCompilerGradlePlugin = "2.1.0"
 jdk = "21"
 compileSdk = "36"
 minSdk = "24"
+material3 = "1.4.0"
 
 [libraries]
 accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanistSystemuicontroller" }
@@ -107,6 +108,7 @@ mockito-inline = { module = "org.mockito:mockito-inline", version.ref = "mockito
 core-testing = { module = "androidx.arch.core:core-testing", version.ref = "coreTesting" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
+material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidAppGradlePlugin" }
