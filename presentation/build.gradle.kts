@@ -129,6 +129,12 @@ dependencies {
     // https://mvnrepository.com/artifact/org.maplibre.gl/android-sdk
     implementation("org.maplibre.gl:android-sdk:11.12.1")
 
+    // rive
+    implementation("app.rive:rive-android:9.6.5")
+    // During initialization, you may need to add a dependency
+    // for Jetpack Startup
+    implementation("androidx.startup:startup-runtime:1.1.1")
+
 
 
 }

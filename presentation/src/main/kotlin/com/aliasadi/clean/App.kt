@@ -2,9 +2,11 @@ package com.aliasadi.clean
 
 import android.app.Application
 import androidx.hilt.work.HiltWorkerFactory
+import androidx.startup.AppInitializer
 import androidx.work.Configuration
 import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkManager
+import app.rive.runtime.kotlin.core.Rive
 import coil.ImageLoader
 import coil.ImageLoaderFactory
 import coil.disk.DiskCache
@@ -36,6 +38,8 @@ class App : Application(), Configuration.Provider, ImageLoaderFactory {
 
     override fun onCreate() {
         super.onCreate()
+
+        Rive.init(applicationContext)
 
         MapLibre.getInstance(
             applicationContext,
