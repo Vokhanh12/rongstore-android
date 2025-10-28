@@ -29,9 +29,6 @@ import app.rive.runtime.kotlin.core.Loop
 import app.rive.runtime.kotlin.core.PlayableInstance
 import com.aliasadi.clean.R
 
-/**
- * ✅ Custom subclass RiveAnimationView để bắt được sự kiện click thật sự.
- */
 class ClickableRiveView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
@@ -43,7 +40,6 @@ class ClickableRiveView @JvmOverloads constructor(
         if (event?.action == MotionEvent.ACTION_UP) {
             Log.d("RiveAnimation", "ClickableRiveView received click")
             onViewClick?.invoke()
-            // ⚠️ Không gọi super, để ngăn Rive runtime ăn mất sự kiện
             return true
         }
         return super.onTouchEvent(event)
@@ -73,7 +69,6 @@ fun RiveAnimation(
     val lifecycleOwner = LocalLifecycleOwner.current
 
     if (LocalInspectionMode.current) {
-        // 👇 Preview mode (chỉ để hiển thị trong Android Studio)
         Image(
             modifier = modifier.size(120.dp),
             painter = painterResource(id = R.drawable.bg_image),
@@ -111,7 +106,6 @@ fun RiveAnimation(
                         notifyStop = notifyStop
                     )
 
-                    // ✅ Bắt click trực tiếp
                     onViewClick = {
                         Log.d("RiveAnimation", "Clicked Custom Rive View (onViewClick)")
                         onClick?.invoke()
@@ -129,9 +123,6 @@ fun RiveAnimation(
     }
 }
 
-/**
- * Lắng nghe các sự kiện từ Rive file controller.
- */
 private fun listenerSetup(
     riveView: RiveAnimationView,
     notifyLoop: ((PlayableInstance) -> Unit)?,
@@ -157,9 +148,6 @@ private fun listenerSetup(
     riveView.registerListener(listener)
 }
 
-/**
- * Preview cho Android Studio
- */
 @Preview(showSystemUi = true)
 @Composable
 fun RiveComposablePreview() {

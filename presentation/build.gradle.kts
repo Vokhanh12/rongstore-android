@@ -10,9 +10,14 @@ plugins {
 android {
     compileSdk = libs.versions.compileSdk.get().toInt()
     ndkVersion = "27.1.12297006"
+
     defaultConfig {
         minSdk = libs.versions.minSdk.get().toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        ndk {
+            abiFilters += listOf("arm64-v8a", "armeabi-v7a")
+        }
+
     }
 
     buildTypes {
@@ -43,6 +48,18 @@ android {
     }
 
     namespace = "com.aliasadi.clean"
+
+
+    packaging {
+        jniLibs {
+            pickFirsts += listOf(
+                "lib/arm64-v8a/libc++_shared.so",
+                "lib/armeabi-v7a/libc++_shared.so",
+                "lib/x86/libc++_shared.so",
+                "lib/x86_64/libc++_shared.so"
+            )
+        }
+    }
 }
 
 kotlin {
@@ -143,7 +160,6 @@ dependencies {
     implementation ("androidx.camera:camera-camera2:1.4.0")
     implementation ("androidx.camera:camera-lifecycle:1.3.4")
     implementation ("androidx.camera:camera-view:1.3.4")
-
-
+    implementation("org.opencv:opencv:4.10.0")
 
 }

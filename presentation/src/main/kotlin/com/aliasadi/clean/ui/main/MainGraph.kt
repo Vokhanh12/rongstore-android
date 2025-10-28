@@ -64,9 +64,7 @@ fun MainGraph(
 
         composableHorizontalSlide<Page.ScanQr> {
             val viewModel = hiltViewModel<ScanQrViewModel>()
-            ScanQrScreen(
-                viewModel = viewModel,
-            )
+            ScanQrScreen()
         }
     }
 }

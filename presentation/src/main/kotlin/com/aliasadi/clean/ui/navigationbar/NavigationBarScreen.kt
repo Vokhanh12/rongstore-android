@@ -63,10 +63,9 @@ fun NavigationBarScreen(
     var showAnimation by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        delay(500) // đợi 0.5s cho UI ổn định
+        delay(500)
         showAnimation = true
     }
-
 
     Scaffold(
         topBar = {
@@ -86,16 +85,10 @@ fun NavigationBarScreen(
                     items = uiState.bottomItems,
                     navController = nestedNavController,
                     onItemClick = { bottomItem ->
-
-                        Log.d("debug", "OKE")
-
                         when (bottomItem.directionType) {
-
                             DirectionType.Tab -> {
                                 val currentPageRoute = nestedNavController.currentDestination?.route
                                 val clickedPageRoute = bottomItem.page
-                                Log.d("debug", "msg: $clickedPageRoute")
-
                                 if (currentPageRoute != clickedPageRoute.route()) {
                                     nestedNavController.navigate(clickedPageRoute) {
                                         launchSingleTop = true
@@ -103,35 +96,15 @@ fun NavigationBarScreen(
                                     }
                                 }
                             }
-
                             DirectionType.Navigate -> {
                                 val clickedPageRoute = bottomItem.page
+                                mainRouter.navigateToScanQr()
                                 Log.d("debug", "msg: $clickedPageRoute")
-                                sharedViewModel.onBottomItemClicked(bottomItem)
                             }
-
                         }
+                        sharedViewModel.onBottomItemClicked(bottomItem)
                     }
                 )
-
-                if (showAnimation) {
-                    RiveAnimation(
-                        resId = R.raw.qr_code_scanner,
-                        animationName = "main",
-                        onClick = {
-                            Log.d("Preview", "Clicked in Preview")
-                        }
-                    )
-
-                    Button(
-                        onClick = {
-                            Log.d("Preview", "Clicked in Preview")
-                        }
-                    ) {
-                        Text("Click me")
-                    }
-
-                }
 
             }
             Box(
@@ -143,8 +116,6 @@ fun NavigationBarScreen(
                         MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
                     )
             ) {
-
-
             }
         }
     ) { paddingValues ->

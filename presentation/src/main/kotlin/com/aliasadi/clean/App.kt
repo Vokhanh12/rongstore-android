@@ -1,7 +1,7 @@
 package com.aliasadi.clean
 
 import android.app.Application
-import androidx.hilt.work.HiltWorkerFactory
+import android.util.Log
 import androidx.startup.AppInitializer
 import androidx.work.Configuration
 import androidx.work.ExistingWorkPolicy
@@ -17,16 +17,14 @@ import com.aliasadi.clean.workers.SyncWork
 import dagger.hilt.android.HiltAndroidApp
 import org.maplibre.android.MapLibre
 import org.maplibre.android.WellKnownTileServer
+import org.opencv.android.OpenCVLoader
 import javax.inject.Inject
 
-/**
- * Created by Ali Asadi on 13/05/2020
- */
 @HiltAndroidApp
 class App : Application(), Configuration.Provider, ImageLoaderFactory {
 
     @Inject
-    lateinit var workerFactory: HiltWorkerFactory
+    lateinit var workerFactory: androidx.hilt.work.HiltWorkerFactory
 
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
@@ -39,23 +37,44 @@ class App : Application(), Configuration.Provider, ImageLoaderFactory {
     override fun onCreate() {
         super.onCreate()
 
+        // --- Rive animation init ---
         Rive.init(applicationContext)
 
+        // --- MapLibre SDK ---
         MapLibre.getInstance(
             applicationContext,
             "",
             WellKnownTileServer.MapLibre
         )
 
+        // --- WorkManager (Hilt integrated) ---
         workManager.enqueueUniqueWork(
             SyncWork::class.java.simpleName,
             ExistingWorkPolicy.KEEP,
             SyncWork.getOneTimeWorkRequest()
         )
+
+        // --- OpenCV init ---
+        initOpenCV()
+    }
+
+    private fun initOpenCV() {
+        try {
+            val success = OpenCVLoader.initDebug()
+            if (success) {
+                Log.i("OpenCV", "✅ OpenCV initialized successfully.")
+            } else {
+                Log.e("OpenCV", "❌ Failed to initialize OpenCV with initDebug().")
+            }
+        } catch (e: UnsatisfiedLinkError) {
+            Log.e("OpenCV", "⚠️ Native library not found: ${e.message}")
+        } catch (e: Exception) {
+            Log.e("OpenCV", "⚠️ Error initializing OpenCV: ${e.message}")
+        }
     }
 
     override fun newImageLoader(): ImageLoader {
-        return ImageLoader(this).newBuilder()
+        return ImageLoader.Builder(this)
             .memoryCachePolicy(CachePolicy.ENABLED)
             .memoryCache {
                 MemoryCache.Builder(this)
@@ -66,8 +85,8 @@ class App : Application(), Configuration.Provider, ImageLoaderFactory {
             .diskCachePolicy(CachePolicy.ENABLED)
             .diskCache {
                 DiskCache.Builder()
-                    .maxSizePercent(0.3)
                     .directory(cacheDir)
+                    .maxSizePercent(0.3)
                     .build()
             }
             .logger(DebugLogger())

@@ -15,7 +15,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.aliasadi.clean.R
 import com.aliasadi.clean.navigation.route
+import com.aliasadi.clean.ui.components.RiveAnimation
 import com.aliasadi.clean.ui.navigationbar.BottomNavigationBarItem
 import com.aliasadi.clean.ui.navigationbar.BottomNavigationBarItem.*
 import com.aliasadi.clean.util.preview.PreviewContainer
@@ -32,16 +34,24 @@ fun BottomNavigationBar(
             val selected = item.page.route() == backStackEntry.value?.destination?.route
             NavigationBarItem(
                 selected = selected,
-                onClick = {
-                    Log.d("test1","test1")
-                    onItemClick(item)},
+                onClick = {onItemClick(item)},
                 icon = {
                   if(item.imageVector != null) {
                         Icon(
                             imageVector = item.imageVector,
                             contentDescription = null
                         )
-                    }
+                  } else if(item.riveFile != null && item.riveAnimationName != null) {
+                      RiveAnimation(
+                          resId = item.riveFile,
+                          modifier = Modifier
+                              .size(60.dp),
+                          animationName = item.riveAnimationName,
+                          onClick = {
+                              onItemClick(item)
+                          }
+                      )
+                  }
                 },
                 label = {
                     if(item.tabName != null)
