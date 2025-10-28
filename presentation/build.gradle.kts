@@ -9,7 +9,7 @@ plugins {
 
 android {
     compileSdk = libs.versions.compileSdk.get().toInt()
-
+    ndkVersion = "27.1.12297006"
     defaultConfig {
         minSdk = libs.versions.minSdk.get().toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -130,10 +130,19 @@ dependencies {
     implementation("org.maplibre.gl:android-sdk:11.12.1")
 
     // rive
-    implementation("app.rive:rive-android:9.6.5")
+    implementation("app.rive:rive-android:10.4.2")
+
     // During initialization, you may need to add a dependency
     // for Jetpack Startup
     implementation("androidx.startup:startup-runtime:1.1.1")
+
+    // ML Kit Barcode Scanning
+    implementation ("com.google.mlkit:barcode-scanning:17.3.0")
+    //camera
+    implementation ("androidx.camera:camera-core:1.3.4")
+    implementation ("androidx.camera:camera-camera2:1.4.0")
+    implementation ("androidx.camera:camera-lifecycle:1.3.4")
+    implementation ("androidx.camera:camera-view:1.3.4")
 
 
 

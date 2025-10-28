@@ -14,4 +14,8 @@ class MainRouter(
     fun navigateToMovieDetails(movieId: Int) {
         mainNavController.navigate(Page.MovieDetails(movieId))
     }
+    fun navigateToScanQr() {
+        mainNavController.navigate(Page.ScanQr)
+    }
+
 }

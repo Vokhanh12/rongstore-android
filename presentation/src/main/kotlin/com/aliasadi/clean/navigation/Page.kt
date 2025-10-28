@@ -19,6 +19,9 @@ sealed class Page {
     data class MovieDetails(val movieId: Int) : Page()
     @Serializable
     data object Map : Page()
+
+    @Serializable
+    data object ScanQr : Page()
 }
 
 sealed class Graph {

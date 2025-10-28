@@ -1,7 +1,8 @@
 package com.aliasadi.clean.ui.widget
 
-import ComposableRiveAnimationView
 import android.content.res.Configuration
+import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
@@ -31,15 +32,11 @@ fun BottomNavigationBar(
             val selected = item.page.route() == backStackEntry.value?.destination?.route
             NavigationBarItem(
                 selected = selected,
-                onClick = { onItemClick(item) },
+                onClick = {
+                    Log.d("test1","test1")
+                    onItemClick(item)},
                 icon = {
-                    if (item.riveFile != null) {
-                        ComposableRiveAnimationView(
-                            animation = item.riveFile,
-                            modifier = Modifier
-                                .size(60.dp)
-                        )
-                    } else if(item.imageVector != null) {
+                  if(item.imageVector != null) {
                         Icon(
                             imageVector = item.imageVector,
                             contentDescription = null

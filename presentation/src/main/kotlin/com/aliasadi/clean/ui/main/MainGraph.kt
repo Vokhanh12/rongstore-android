@@ -11,6 +11,8 @@ import com.aliasadi.clean.ui.moviedetails.MovieDetailsPage
 import com.aliasadi.clean.ui.moviedetails.MovieDetailsViewModel
 import com.aliasadi.clean.ui.navigationbar.NavigationBarNestedGraph
 import com.aliasadi.clean.ui.navigationbar.NavigationBarScreen
+import com.aliasadi.clean.ui.scanqr.ScanQrScreen
+import com.aliasadi.clean.ui.scanqr.ScanQrViewModel
 import com.aliasadi.clean.ui.search.SearchPage
 import com.aliasadi.clean.ui.search.SearchViewModel
 import com.aliasadi.clean.util.composableHorizontalSlide
@@ -56,6 +58,13 @@ fun MainGraph(
             val viewModel = hiltViewModel<MovieDetailsViewModel>()
             MovieDetailsPage(
                 mainNavController = mainNavController,
+                viewModel = viewModel,
+            )
+        }
+
+        composableHorizontalSlide<Page.ScanQr> {
+            val viewModel = hiltViewModel<ScanQrViewModel>()
+            ScanQrScreen(
                 viewModel = viewModel,
             )
         }

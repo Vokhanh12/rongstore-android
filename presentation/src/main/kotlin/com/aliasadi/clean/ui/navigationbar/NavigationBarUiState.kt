@@ -52,7 +52,7 @@ sealed class BottomNavigationBarItem(
     data object ScanQr : BottomNavigationBarItem(
         riveFile = R.raw.qr_code_scanner,
         riveAnimationName = "idle",
-        page = Page.Map,
+        page = Page.ScanQr,
         directionType = DirectionType.Navigate
     )
 }

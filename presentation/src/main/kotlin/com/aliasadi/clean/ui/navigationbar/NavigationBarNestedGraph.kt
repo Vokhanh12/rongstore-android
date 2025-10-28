@@ -12,6 +12,8 @@ import com.aliasadi.clean.ui.feed.FeedViewModel
 import com.aliasadi.clean.ui.main.MainRouter
 import com.aliasadi.clean.ui.map.MapPage
 import com.aliasadi.clean.ui.map.MapViewModel
+import com.aliasadi.clean.ui.scanqr.ScanQrScreen
+import com.aliasadi.clean.ui.scanqr.ScanQrViewModel
 import com.aliasadi.clean.util.composableHorizontalSlide
 import com.aliasadi.clean.util.sharedViewModel
 import kotlin.reflect.KClass
@@ -46,6 +48,12 @@ fun NavigationBarNestedGraph(
             val viewModel = hiltViewModel<MapViewModel>()
             MapPage(
                 mainRouter = MainRouter(mainNavController),
+                viewModel = viewModel,
+            )
+        }
+        composableHorizontalSlide<Page.ScanQr> {
+            val viewModel = hiltViewModel<ScanQrViewModel>()
+            ScanQrScreen(
                 viewModel = viewModel,
             )
         }

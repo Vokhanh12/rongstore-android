@@ -1,16 +1,35 @@
 package com.aliasadi.clean.ui.navigationbar
 
+import com.aliasadi.clean.R
 import android.content.res.Configuration
+import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Button
+import androidx.compose.material3.FabPosition
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -23,11 +42,13 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.aliasadi.clean.navigation.route
+import com.aliasadi.clean.ui.components.RiveAnimation
 import com.aliasadi.clean.ui.main.MainRouter
 import com.aliasadi.clean.ui.theme.AppColor
 import com.aliasadi.clean.ui.widget.BottomNavigationBar
 import com.aliasadi.clean.ui.widget.TopBar
 import com.aliasadi.clean.util.preview.PreviewContainer
+import kotlinx.coroutines.delay
 
 @Composable
 fun NavigationBarScreen(
@@ -39,8 +60,15 @@ fun NavigationBarScreen(
     content: @Composable () -> Unit
 ) {
     val uiState = NavigationBarUiState()
-    Scaffold(
+    var showAnimation by remember { mutableStateOf(false) }
 
+    LaunchedEffect(Unit) {
+        delay(500) // đợi 0.5s cho UI ổn định
+        showAnimation = true
+    }
+
+
+    Scaffold(
         topBar = {
             TopBar(
                 "MovieClean",
@@ -53,6 +81,59 @@ fun NavigationBarScreen(
 
         },
         bottomBar = {
+            Box {
+                BottomNavigationBar(
+                    items = uiState.bottomItems,
+                    navController = nestedNavController,
+                    onItemClick = { bottomItem ->
+
+                        Log.d("debug", "OKE")
+
+                        when (bottomItem.directionType) {
+
+                            DirectionType.Tab -> {
+                                val currentPageRoute = nestedNavController.currentDestination?.route
+                                val clickedPageRoute = bottomItem.page
+                                Log.d("debug", "msg: $clickedPageRoute")
+
+                                if (currentPageRoute != clickedPageRoute.route()) {
+                                    nestedNavController.navigate(clickedPageRoute) {
+                                        launchSingleTop = true
+                                        popUpTo(nestedNavController.graph.findStartDestination().id)
+                                    }
+                                }
+                            }
+
+                            DirectionType.Navigate -> {
+                                val clickedPageRoute = bottomItem.page
+                                Log.d("debug", "msg: $clickedPageRoute")
+                                sharedViewModel.onBottomItemClicked(bottomItem)
+                            }
+
+                        }
+                    }
+                )
+
+                if (showAnimation) {
+                    RiveAnimation(
+                        resId = R.raw.qr_code_scanner,
+                        animationName = "main",
+                        onClick = {
+                            Log.d("Preview", "Clicked in Preview")
+                        }
+                    )
+
+                    Button(
+                        onClick = {
+                            Log.d("Preview", "Clicked in Preview")
+                        }
+                    ) {
+                        Text("Click me")
+                    }
+
+                }
+
+            }
             Box(
                 modifier = Modifier
                     .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -62,21 +143,8 @@ fun NavigationBarScreen(
                         MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
                     )
             ) {
-                BottomNavigationBar(
-                    items = uiState.bottomItems,
-                    navController = nestedNavController,
-                    onItemClick = { bottomItem ->
-                        val currentPageRoute = nestedNavController.currentDestination?.route
-                        val clickedPageRoute = bottomItem.page
-                        if (currentPageRoute != clickedPageRoute.route()) {
-                            nestedNavController.navigate(clickedPageRoute) {
-                                launchSingleTop = true
-                                popUpTo(nestedNavController.graph.findStartDestination().id)
-                            }
-                        }
-                        sharedViewModel.onBottomItemClicked(bottomItem)
-                    }
-                )
+
+
             }
         }
     ) { paddingValues ->
