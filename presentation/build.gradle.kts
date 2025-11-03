@@ -155,11 +155,27 @@ dependencies {
 
     // ML Kit Barcode Scanning
     implementation ("com.google.mlkit:barcode-scanning:17.3.0")
-    //camera
-    implementation ("androidx.camera:camera-core:1.3.4")
-    implementation ("androidx.camera:camera-camera2:1.4.0")
-    implementation ("androidx.camera:camera-lifecycle:1.3.4")
-    implementation ("androidx.camera:camera-view:1.3.4")
+
+    // camera
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.view)
+    implementation(libs.androidx.camera.extensions)
+    implementation(libs.androidx.camera.video)
+    implementation(libs.google.mlkit.barcode.scanning)
+
+    // Datastore
+    implementation(libs.androidx.datastore.preferences.core)
+    implementation(libs.androidx.datastore.preferences)
+
+    // Json
+    implementation(libs.squareup.moshi)
+    ksp(libs.squareup.moshi.kotlin.codegen)
+
     implementation("org.opencv:opencv:4.10.0")
+
+    // Permission
+    implementation(libs.accompanist.permissions)
 
 }

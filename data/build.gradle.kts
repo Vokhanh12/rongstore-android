@@ -42,6 +42,7 @@ kotlin {
 
 dependencies {
     api(project(":domain"))
+    implementation(libs.androidx.datastore.core)
     testImplementation(project(":core-test"))
 
     // Room
@@ -55,4 +56,8 @@ dependencies {
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
     implementation(libs.retrofit2.kotlin.coroutines.adapter)
+
+    // Datastore
+    implementation(libs.androidx.datastore.preferences.core)
+    implementation(libs.androidx.datastore.preferences)
 }

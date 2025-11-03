@@ -1,6 +1,8 @@
 package com.aliasadi.clean.di.module
 
 import android.content.Context
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import com.aliasadi.data.api.MovieApi
 import com.aliasadi.data.db.favoritemovies.FavoriteMovieDao
 import com.aliasadi.data.db.movies.MovieDao
@@ -12,6 +14,8 @@ import com.aliasadi.data.repository.movie.MovieRemoteMediator
 import com.aliasadi.data.repository.movie.MovieRepositoryImpl
 import com.aliasadi.data.repository.movie.favorite.FavoriteMoviesDataSource
 import com.aliasadi.data.repository.movie.favorite.FavoriteMoviesLocalDataSource
+import com.aliasadi.data.repository.user.UserDataSource
+import com.aliasadi.data.repository.user.UserDataSourceImpl
 import com.aliasadi.data.util.NetworkMonitorImpl
 import com.aliasadi.domain.repository.MovieRepository
 import com.aliasadi.domain.usecase.AddMovieToFavorite
@@ -34,6 +38,14 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 class DataModule {
+
+    @Provides
+    @Singleton
+    fun provideUserDataSource(
+        userSettingPref: DataStore<Preferences>
+    ): UserDataSource {
+        return UserDataSourceImpl(userSettingPref)
+    }
 
     @Provides
     @Singleton

@@ -5,23 +5,20 @@ import kotlinx.serialization.Serializable
 sealed class Page {
     @Serializable
     data object NavigationBar : Page()
-
     @Serializable
     data object Feed : Page()
-
     @Serializable
     data object Favorites : Page()
-
     @Serializable
     data object Search : Page()
-
     @Serializable
     data class MovieDetails(val movieId: Int) : Page()
     @Serializable
     data object Map : Page()
-
     @Serializable
     data object ScanQr : Page()
+    @Serializable
+    data object ScanQrResult : Page()
 }
 
 sealed class Graph {

@@ -35,4 +35,12 @@ kotlin {
 
 dependencies {
     implementation(libs.paging.common.ktx)
+    implementation(libs.androidx.runtime.annotation)
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.room.common.jvm)
+
+    // Json
+    implementation(libs.squareup.moshi)
+    implementation(libs.barcode.scanning.common)
+
 }

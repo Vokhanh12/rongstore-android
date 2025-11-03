@@ -25,6 +25,10 @@ mockitoInline = "5.2.0"
 mockitoKotlin = "6.0.0"
 navigationCompose = "2.9.5"
 okhttp = "5.1.0"
+camerax = "1.3.4"
+mlkit_barcode_scanning = "17.2.0"
+moshi_version = "1.15.1"
+datastore_version = "1.0.0"
 pagingCommonKtx = "3.3.6"
 pagingCompose = "3.3.6"
 retrofit = "3.0.0"
@@ -44,6 +48,12 @@ jdk = "21"
 compileSdk = "36"
 minSdk = "24"
 material3 = "1.4.0"
+runtimeAnnotation = "1.9.4"
+entityExtraction = "16.0.0-beta6"
+roomCommonJvm = "2.8.3"
+barcodeScanningCommon = "17.0.0"
+datastoreCore = "1.1.7"
+accompanist = "0.37.3"
 
 [libraries]
 accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanistSystemuicontroller" }
@@ -109,6 +119,33 @@ core-testing = { module = "androidx.arch.core:core-testing", version.ref = "core
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 truth = { module = "com.google.truth:truth", version.ref = "truth" }
 material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
+
+# Camera
+androidx-camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "camerax" }
+androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "camerax" }
+androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "camerax" }
+androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "camerax" }
+androidx-camera-extensions = { group = "androidx.camera", name = "camera-extensions", version.ref = "camerax" }
+androidx-camera-video = { group = "androidx.camera", name = "camera-video", version.ref = "camerax" }
+
+# Barcode
+google-mlkit-barcode-scanning = { group = "com.google.mlkit", name = "barcode-scanning", version.ref = "mlkit_barcode_scanning" }
+
+# Datastore
+androidx-datastore-preferences-core = { group = "androidx.datastore", name = "datastore-preferences-core", version.ref = "datastore_version" }
+androidx-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore_version" }
+androidx-runtime-annotation = { group = "androidx.compose.runtime", name = "runtime-annotation", version.ref = "runtimeAnnotation" }
+
+# Json
+squareup-moshi = { group = "com.squareup.moshi", name = "moshi", version.ref = "moshi_version" }
+squareup-moshi-kotlin-codegen = { group = "com.squareup.moshi", name = "moshi-kotlin-codegen", version.ref = "moshi_version" }
+entity-extraction = { group = "com.google.mlkit", name = "entity-extraction", version.ref = "entityExtraction" }
+androidx-room-common-jvm = { group = "androidx.room", name = "room-common-jvm", version.ref = "roomCommonJvm" }
+barcode-scanning-common = { group = "com.google.mlkit", name = "barcode-scanning-common", version.ref = "barcodeScanningCommon" }
+androidx-datastore-core = { group = "androidx.datastore", name = "datastore-core", version.ref = "datastoreCore" }
+
+# Permission
+accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidAppGradlePlugin" }

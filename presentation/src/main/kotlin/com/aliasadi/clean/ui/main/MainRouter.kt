@@ -18,4 +18,8 @@ class MainRouter(
         mainNavController.navigate(Page.ScanQr)
     }
 
+    fun navigateToScanQrResult(){
+        mainNavController.navigate(Page.ScanQrResult)
+    }
+
 }

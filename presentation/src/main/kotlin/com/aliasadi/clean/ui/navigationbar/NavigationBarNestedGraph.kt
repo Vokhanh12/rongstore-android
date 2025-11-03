@@ -1,7 +1,11 @@
 package com.aliasadi.clean.ui.navigationbar
 
+import androidx.camera.view.LifecycleCameraController
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.aliasadi.clean.navigation.Page
@@ -12,7 +16,8 @@ import com.aliasadi.clean.ui.feed.FeedViewModel
 import com.aliasadi.clean.ui.main.MainRouter
 import com.aliasadi.clean.ui.map.MapPage
 import com.aliasadi.clean.ui.map.MapViewModel
-import com.aliasadi.clean.ui.scanqr.ScanQrScreen
+import com.aliasadi.clean.ui.scanqr.QRCameraView
+import com.aliasadi.clean.ui.scanqr.QrCameraScreenLayout
 import com.aliasadi.clean.ui.scanqr.ScanQrViewModel
 import com.aliasadi.clean.util.composableHorizontalSlide
 import com.aliasadi.clean.util.sharedViewModel
@@ -24,6 +29,8 @@ fun NavigationBarNestedGraph(
     mainNavController: NavHostController,
     parentRoute: KClass<*>?
 ) {
+    val context = LocalContext.current
+
     NavHost(
         navController = navController,
         startDestination = Page.Feed,
@@ -53,7 +60,7 @@ fun NavigationBarNestedGraph(
         }
         composableHorizontalSlide<Page.ScanQr> {
             val viewModel = hiltViewModel<ScanQrViewModel>()
-            ScanQrScreen()
+            QrCameraScreenLayout(viewModel)
         }
     }
 }

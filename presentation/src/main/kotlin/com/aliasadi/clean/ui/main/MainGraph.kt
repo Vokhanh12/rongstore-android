@@ -1,7 +1,11 @@
 package com.aliasadi.clean.ui.main
 
+import androidx.camera.view.LifecycleCameraController
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
@@ -11,12 +15,14 @@ import com.aliasadi.clean.ui.moviedetails.MovieDetailsPage
 import com.aliasadi.clean.ui.moviedetails.MovieDetailsViewModel
 import com.aliasadi.clean.ui.navigationbar.NavigationBarNestedGraph
 import com.aliasadi.clean.ui.navigationbar.NavigationBarScreen
-import com.aliasadi.clean.ui.scanqr.ScanQrScreen
+import com.aliasadi.clean.ui.scanqr.QRCameraView
+import com.aliasadi.clean.ui.scanqr.QrCameraScreenLayout
 import com.aliasadi.clean.ui.scanqr.ScanQrViewModel
 import com.aliasadi.clean.ui.search.SearchPage
 import com.aliasadi.clean.ui.search.SearchViewModel
 import com.aliasadi.clean.util.composableHorizontalSlide
 import com.aliasadi.clean.util.sharedViewModel
+import java.util.jar.Manifest
 
 @Composable
 fun MainGraph(
@@ -24,6 +30,11 @@ fun MainGraph(
     darkMode: Boolean,
     onThemeUpdated: () -> Unit
 ) {
+    val context = LocalContext.current
+    val cameraController: LifecycleCameraController = remember { LifecycleCameraController(context) }.apply {
+        bindToLifecycle(LocalLifecycleOwner.current)
+    }
+
     NavHost(
         navController = mainNavController,
         startDestination = Page.NavigationBar,
@@ -64,7 +75,7 @@ fun MainGraph(
 
         composableHorizontalSlide<Page.ScanQr> {
             val viewModel = hiltViewModel<ScanQrViewModel>()
-            ScanQrScreen()
+            QrCameraScreenLayout(viewModel)
         }
     }
 }
