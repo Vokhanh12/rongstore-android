@@ -1,5 +1,6 @@
 package com.aliasadi.clean.navigation
 
+import com.aliasadi.clean.ui.result.QRCodeRawData
 import kotlinx.serialization.Serializable
 
 sealed class Page {
@@ -18,7 +19,7 @@ sealed class Page {
     @Serializable
     data object ScanQr : Page()
     @Serializable
-    data object ScanQrResult : Page()
+    data class QrCodeResult(val dbRowId: Int): Page()
 }
 
 sealed class Graph {

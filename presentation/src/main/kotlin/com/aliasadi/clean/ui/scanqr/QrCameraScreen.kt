@@ -53,8 +53,9 @@ const val cornerStrokeLength = 80f
 const val cornerStrokeWidth = 10f
 val dimmingColor = Color.Black.copy(alpha = 0.3f)
 const val animationDuration = 500
+
 @Composable
-fun QRCameraView(lifecycleCameraController: LifecycleCameraController,
+fun QRCameraScreen(lifecycleCameraController: LifecycleCameraController,
                  userSettingData: UserSettingData? = null,
                  handleSwitchKeepScanning: () -> Unit = {}) {
 

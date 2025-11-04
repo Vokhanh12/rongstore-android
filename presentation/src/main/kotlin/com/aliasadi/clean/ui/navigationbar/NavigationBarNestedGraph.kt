@@ -16,7 +16,6 @@ import com.aliasadi.clean.ui.feed.FeedViewModel
 import com.aliasadi.clean.ui.main.MainRouter
 import com.aliasadi.clean.ui.map.MapPage
 import com.aliasadi.clean.ui.map.MapViewModel
-import com.aliasadi.clean.ui.scanqr.QRCameraView
 import com.aliasadi.clean.ui.scanqr.QrCameraScreenLayout
 import com.aliasadi.clean.ui.scanqr.ScanQrViewModel
 import com.aliasadi.clean.util.composableHorizontalSlide
@@ -60,7 +59,7 @@ fun NavigationBarNestedGraph(
         }
         composableHorizontalSlide<Page.ScanQr> {
             val viewModel = hiltViewModel<ScanQrViewModel>()
-            QrCameraScreenLayout(viewModel)
+            QrCameraScreenLayout(mainNavController = mainNavController, vm = viewModel)
         }
     }
 }

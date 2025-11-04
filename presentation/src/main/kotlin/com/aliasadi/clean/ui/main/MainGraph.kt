@@ -15,14 +15,14 @@ import com.aliasadi.clean.ui.moviedetails.MovieDetailsPage
 import com.aliasadi.clean.ui.moviedetails.MovieDetailsViewModel
 import com.aliasadi.clean.ui.navigationbar.NavigationBarNestedGraph
 import com.aliasadi.clean.ui.navigationbar.NavigationBarScreen
-import com.aliasadi.clean.ui.scanqr.QRCameraView
+import com.aliasadi.clean.ui.result.QRCodeResultPage
+import com.aliasadi.clean.ui.result.QRCodeResultViewModel
 import com.aliasadi.clean.ui.scanqr.QrCameraScreenLayout
 import com.aliasadi.clean.ui.scanqr.ScanQrViewModel
 import com.aliasadi.clean.ui.search.SearchPage
 import com.aliasadi.clean.ui.search.SearchViewModel
 import com.aliasadi.clean.util.composableHorizontalSlide
 import com.aliasadi.clean.util.sharedViewModel
-import java.util.jar.Manifest
 
 @Composable
 fun MainGraph(
@@ -73,9 +73,21 @@ fun MainGraph(
             )
         }
 
+        composableHorizontalSlide<Page.QrCodeResult> { params ->
+            val viewModel = hiltViewModel<QRCodeResultViewModel>()
+            QRCodeResultPage(
+                mainNavController = mainNavController,
+                viewModel = viewModel,
+                dbRowId = 0,
+                dismiss = {
+                    mainNavController.popBackStack()
+                }
+            )
+        }
+
         composableHorizontalSlide<Page.ScanQr> {
             val viewModel = hiltViewModel<ScanQrViewModel>()
-            QrCameraScreenLayout(viewModel)
+            QrCameraScreenLayout(mainNavController, viewModel)
         }
     }
 }

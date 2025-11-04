@@ -49,6 +49,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.withResumed
 import androidx.navigation.NavHostController
+import com.aliasadi.clean.navigation.Page
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import kotlinx.coroutines.delay
@@ -64,7 +65,7 @@ import com.google.accompanist.permissions.rememberPermissionState
 @androidx.annotation.OptIn(ExperimentalGetImage::class)
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun QrCameraScreenLayout(vm: ScanQrViewModel) {
+fun QrCameraScreenLayout(mainNavController: NavHostController, vm: ScanQrViewModel) {
 
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -162,7 +163,9 @@ fun QrCameraScreenLayout(vm: ScanQrViewModel) {
 
                 is QRCodeAction.OpenQRCodeResult -> {
                     if (it.id != ScanQrViewModel.INVALID_DB_ROW_ID) {
-                        Log.d("debug", "Oke")
+                        mainNavController.navigate(
+                            Page.QrCodeResult(0)
+                        )
                     }
                 }
 
@@ -247,7 +250,7 @@ fun QrCameraScreenLayout(vm: ScanQrViewModel) {
                 .background(Color.Black)
         ) {
             if (cameraPermissionState.status.isGranted) {
-                QRCameraView(cameraController,
+                QRCameraScreen(cameraController,
                     appSettingState,
                     handleSwitchKeepScanning = {
                         vm.toggleKeepScanning()

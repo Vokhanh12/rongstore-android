@@ -1,7 +1,6 @@
-package com.aliasadi.clean.ui.scanqr
+package com.aliasadi.clean.ui.result
 
-package com.creative.qrcodescanner.ui.result
-
+import android.content.Intent
 import android.graphics.Bitmap
 import androidx.activity.compose.BackHandler
 import androidx.annotation.DrawableRes
@@ -9,76 +8,89 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.windowInsetsBottomHeight
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import com.aliasadi.clean.R
+import com.aliasadi.clean.ui.navigationbar.TopNavigationBar
+import com.aliasadi.clean.ui.shadow
+import com.aliasadi.domain.entities.QRCodeEntity
 import com.google.mlkit.vision.barcode.common.Barcode
 import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.util.*
 
 @Composable
-fun ScanQrResultScreen(dbRowId: Int, appNav: NavHostController,
-                       qrCodeResultViewModel: QRCodeResultViewModel,
-                       dismiss: (() -> Unit) = {},
-                       callbackHandleQR: ((QRCodeRawData?) -> Unit) = {},
-                       callbackCopyRawValue: ((String) -> Unit) = {},
-                       callbackShareRawValue: ((String) -> Unit) = {}
+fun QRCodeResultPage(
+    mainNavController: NavHostController,
+    viewModel: QRCodeResultViewModel,
+    dbRowId: Int,
+    dismiss: (() -> Unit) = {}
 ) {
-    val uiState by qrCodeResultViewModel.qrCodeResultUIState.collectAsStateWithLifecycle(null)
-    val qrCodeRawData = (uiState as? QRCodeResultUIState.Success)?.qrCodeResult?.toQRCodeRawData()
+    val state by viewModel.uiState.collectAsStateWithLifecycle(null)
 
-    LaunchedEffect(key1 = Unit) {
-        qrCodeResultViewModel.getQRCodeByRowId(dbRowId)
+    LaunchedEffect(Unit) {
+        viewModel.getQRCodeByRowId(dbRowId)
     }
 
     BackHandler {
         dismiss.invoke()
-        appNav.popBackStack()
+        mainNavController.popBackStack()
     }
+
+    QRCodeResultScreen(
+        state = state,
+        onBack = {
+            dismiss.invoke()
+            mainNavController.popBackStack()
+        },
+        onHandle = viewModel::handleQRCodeAction,
+        onCopy = viewModel::copyRawValue,
+        onShare = viewModel::shareRawValue
+    )
+}
+
+@Composable
+private fun QRCodeResultScreen(
+    state: QRCodeResultUIState?,
+    onBack: () -> Unit,
+    onHandle: (QRCodeRawData?) -> Unit,
+    onCopy: (String) -> Unit,
+    onShare: (String) -> Unit
+) {
+    val qrCodeRawData = (state as? QRCodeResultUIState.Success)
+        ?.qrCodeResult
+        ?.toQRCodeRawData()
+
+    val context = LocalContext.current
+    val clipboard = LocalClipboardManager.current
 
     Scaffold(
         topBar = {
-            TopNavBar(titleResId = R.string.qr_code_result) {
-                dismiss.invoke()
-                appNav.popBackStack()
-            }
+            TopNavigationBar(titleResId = R.string.qr_code_result, backNavClick = onBack)
         },
         bottomBar = {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .background(MaterialTheme.colorScheme.surface, shape = RoundedCornerShape(8.dp)),
+                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp)),
                 verticalArrangement = Arrangement.Bottom
             ) {
                 Row(
@@ -86,16 +98,14 @@ fun ScanQrResultScreen(dbRowId: Int, appNav: NavHostController,
                         .padding(vertical = 12.dp, horizontal = 16.dp)
                         .shadow(
                             MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
-                            blurRadius = 8.dp, borderRadius = 8.dp, spread = 0.dp, offsetY = 0.dp, offsetX = 0.dp
+                            blurRadius = 8.dp, borderRadius = 8.dp,
+                            spread = 0.dp, offsetY = 0.dp, offsetX = 0.dp
                         )
                         .fillMaxWidth()
                         .wrapContentHeight()
-                        .background(MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp))
                         .clip(RoundedCornerShape(8.dp))
-                        .clickable {
-                            dismiss.invoke()
-                            appNav.popBackStack(AppScreen.MAIN.value, false)
-                        }
+                        .clickable { onBack() }
                         .padding(16.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
                     verticalAlignment = Alignment.CenterVertically,
@@ -105,9 +115,12 @@ fun ScanQrResultScreen(dbRowId: Int, appNav: NavHostController,
                         contentDescription = stringResource(id = R.string.continue_to_scan),
                         modifier = Modifier.size(28.dp)
                     )
-                    Text(text = stringResource(R.string.continue_to_scan), color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.titleLarge)
+                    Text(
+                        text = stringResource(R.string.continue_to_scan),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        style = MaterialTheme.typography.titleLarge
+                    )
                 }
-
                 Spacer(modifier = Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
             }
         }
@@ -119,9 +132,10 @@ fun ScanQrResultScreen(dbRowId: Int, appNav: NavHostController,
                 .padding(18.dp)
                 .shadow(
                     MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
-                    blurRadius = 8.dp, borderRadius = 8.dp, spread = 0.dp, offsetY = 0.dp, offsetX = 0.dp
+                    blurRadius = 8.dp, borderRadius = 8.dp,
+                    spread = 0.dp, offsetY = 0.dp, offsetX = 0.dp
                 )
-                .background(color = Color.White, shape = RoundedCornerShape(8.dp))
+                .background(Color.White, RoundedCornerShape(8.dp))
                 .fillMaxWidth()
                 .wrapContentHeight()
                 .padding(12.dp),
@@ -129,37 +143,42 @@ fun ScanQrResultScreen(dbRowId: Int, appNav: NavHostController,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box (modifier = Modifier
-                    .size(52.dp)
-                    .shadow(
-                        MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f),
-                        blurRadius = 8.dp, borderRadius = 4.dp, spread = 0.dp, offsetY = 0.dp, offsetX = 0.dp
-                    )
-                    .background(MaterialTheme.colorScheme.inverseOnSurface, shape = RoundedCornerShape(4.dp))
-                    .padding(8.dp)
+                Box(
+                    modifier = Modifier
+                        .size(52.dp)
+                        .shadow(
+                            MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f),
+                            blurRadius = 8.dp, borderRadius = 4.dp,
+                            spread = 0.dp, offsetY = 0.dp, offsetX = 0.dp
+                        )
+                        .background(MaterialTheme.colorScheme.inverseOnSurface, RoundedCornerShape(4.dp))
+                        .padding(8.dp)
                 ) {
                     Image(
                         painter = painterResource(id = qrCodeRawData?.typeIcon ?: R.drawable.icon_qr),
                         contentDescription = stringResource(R.string.qr_code_type),
-                        modifier = Modifier.fillMaxSize())
+                        modifier = Modifier.fillMaxSize()
+                    )
                 }
 
-
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    horizontalAlignment = Alignment.Start,
-                    verticalArrangement = Arrangement.spacedBy(0.dp)
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.Start
                 ) {
-                    Text(text = qrCodeRawData?.typeStringRes?.let { stringResource(it) }.orEmpty(), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onBackground)
-                    Text(text = qrCodeRawData?.scanDate.orEmpty(), style = MaterialTheme.typography.labelSmall, color = Color.Gray)
+                    Text(
+                        text = qrCodeRawData?.typeStringRes?.let { stringResource(it) }.orEmpty(),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Text(
+                        text = qrCodeRawData?.scanDate.orEmpty(),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.Gray
+                    )
                 }
             }
 
@@ -171,78 +190,82 @@ fun ScanQrResultScreen(dbRowId: Int, appNav: NavHostController,
                     .heightIn(64.dp, Dp.Unspecified)
                     .shadow(
                         MaterialTheme.colorScheme.onBackground.copy(alpha = 0.1f),
-                        blurRadius = 8.dp, borderRadius = 4.dp, spread = 0.dp, offsetY = 0.dp, offsetX = 0.dp
+                        blurRadius = 8.dp, borderRadius = 4.dp,
+                        spread = 0.dp, offsetY = 0.dp, offsetX = 0.dp
                     )
-                    .background(MaterialTheme.colorScheme.inverseOnSurface, shape = RoundedCornerShape(4.dp))
+                    .background(MaterialTheme.colorScheme.inverseOnSurface, RoundedCornerShape(4.dp))
                     .padding(8.dp)
             )
 
+            // Nút xử lý QR (mở link, gọi điện, gửi SMS,...)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .shadow(
                         MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
-                        blurRadius = 8.dp, borderRadius = 8.dp, spread = 0.dp, offsetY = 0.dp, offsetX = 0.dp
+                        blurRadius = 8.dp, borderRadius = 8.dp,
+                        spread = 0.dp, offsetY = 0.dp, offsetX = 0.dp
                     )
-                    .background(MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(8.dp))
+                    .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp))
                     .clip(RoundedCornerShape(8.dp))
-                    .clickable {
-                        callbackHandleQR.invoke(qrCodeRawData)
-                    }
-                    .align(Alignment.CenterHorizontally)
+                    .clickable { onHandle(qrCodeRawData) }
                     .padding(12.dp)
             ) {
                 Text(
-                    text = stringResource(id = qrCodeRawData?.ctaHandleStringRes ?: R.string.copy).uppercase(), modifier = Modifier.align(Alignment.Center),
-                    textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onPrimary
+                    text = stringResource(id = qrCodeRawData?.ctaHandleStringRes ?: R.string.copy).uppercase(),
+                    modifier = Modifier.align(Alignment.Center),
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onPrimary
                 )
             }
 
+            // Copy / Share
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(5.dp)
             ) {
                 Box(
                     modifier = Modifier
-                        .wrapContentHeight()
+                        .weight(1f)
                         .shadow(
                             MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
-                            blurRadius = 8.dp, borderRadius = 8.dp, spread = 0.dp, offsetY = 0.dp, offsetX = 0.dp
+                            blurRadius = 8.dp, borderRadius = 8.dp
                         )
                         .clip(RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.primary)
                         .clickable {
-                            callbackCopyRawValue.invoke(qrCodeRawData?.rawData.orEmpty())
+                            val text = qrCodeRawData?.rawData.orEmpty()
+                            clipboard.setText(AnnotatedString(text))
+                            onCopy(text)
                         }
                         .padding(12.dp)
-                        .weight(1f)
                 ) {
                     Text(
-                        text = stringResource(R.string.copy_text).uppercase(), modifier = Modifier.align(Alignment.Center),
-                        textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onPrimary
+                        text = stringResource(R.string.copy_text).uppercase(),
+                        modifier = Modifier.align(Alignment.Center),
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
+
                 Box(
                     modifier = Modifier
-                        .wrapContentHeight()
+                        .weight(1f)
                         .shadow(
                             MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
-                            blurRadius = 8.dp, borderRadius = 8.dp, spread = 0.dp, offsetY = 0.dp, offsetX = 0.dp
+                            blurRadius = 8.dp, borderRadius = 8.dp
                         )
                         .clip(RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(8.dp))
-                        .clip(RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.primary)
                         .clickable {
-                            callbackShareRawValue.invoke(qrCodeRawData?.rawData.orEmpty())
+                            val text = qrCodeRawData?.rawData.orEmpty()
+                            onShare(text)
                         }
                         .padding(12.dp)
-                        .weight(1f)
                 ) {
                     Text(
-                        text = stringResource(R.string.share_text).uppercase(), modifier = Modifier.align(Alignment.Center),
-                        textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.onPrimary
+                        text = stringResource(R.string.share_text).uppercase(),
+                        modifier = Modifier.align(Alignment.Center),
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             }
@@ -277,7 +300,6 @@ fun QRCodeEntity.toQRCodeRawData(): QRCodeRawData {
             Barcode.TYPE_DRIVER_LICENSE -> R.drawable.icon_license
             Barcode.TYPE_PRODUCT -> R.drawable.icon_product
             Barcode.TYPE_ISBN -> R.drawable.icon_isbn
-            Barcode.TYPE_UNKNOWN -> R.drawable.icon_qr
             else -> R.drawable.icon_qr
         },
         qrCodeBitmap = Bitmap.createBitmap(256, 256, Bitmap.Config.ARGB_8888),
@@ -294,10 +316,10 @@ fun QRCodeEntity.toQRCodeRawData(): QRCodeRawData {
             Barcode.TYPE_DRIVER_LICENSE -> R.string.driver_license
             Barcode.TYPE_PRODUCT -> R.string.product
             Barcode.TYPE_ISBN -> R.string.isbn
-            Barcode.TYPE_UNKNOWN -> R.string.text
             else -> R.string.text
         },
-        scanDate = SimpleDateFormat("HH:mm, E dd MMM, yyyy", Locale.getDefault()).format(Date(scanDateTimeMillis)).toString(),
+        scanDate = SimpleDateFormat("HH:mm, E dd MMM, yyyy", Locale.getDefault())
+            .format(Date(scanDateTimeMillis)).toString(),
         rawData = rawData.orEmpty(),
         ctaHandleStringRes = when (qrType) {
             Barcode.TYPE_URL -> R.string.open_in_browser
@@ -308,11 +330,6 @@ fun QRCodeEntity.toQRCodeRawData(): QRCodeRawData {
             Barcode.TYPE_GEO -> R.string.search
             Barcode.TYPE_PHONE -> R.string.call
             Barcode.TYPE_SMS -> R.string.send_sms
-            Barcode.TYPE_TEXT -> R.string.search
-            Barcode.TYPE_DRIVER_LICENSE -> R.string.search
-            Barcode.TYPE_PRODUCT -> R.string.search
-            Barcode.TYPE_ISBN -> R.string.search
-            Barcode.TYPE_UNKNOWN -> R.string.search
             else -> R.string.search
         },
         jsonDetails = qrDetails,

@@ -2,6 +2,7 @@ package com.aliasadi.clean.ui.main
 
 import androidx.navigation.NavHostController
 import com.aliasadi.clean.navigation.Page
+import com.aliasadi.clean.ui.result.QRCodeRawData
 
 class MainRouter(
     private val mainNavController: NavHostController
@@ -16,10 +17,6 @@ class MainRouter(
     }
     fun navigateToScanQr() {
         mainNavController.navigate(Page.ScanQr)
-    }
-
-    fun navigateToScanQrResult(){
-        mainNavController.navigate(Page.ScanQrResult)
     }
 
 }
