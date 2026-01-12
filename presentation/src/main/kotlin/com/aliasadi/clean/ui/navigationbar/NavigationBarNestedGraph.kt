@@ -15,6 +15,7 @@ import com.aliasadi.clean.ui.feed.FeedPage
 import com.aliasadi.clean.ui.feed.FeedViewModel
 import com.aliasadi.clean.ui.main.MainRouter
 import com.aliasadi.clean.ui.map.MapPage
+import com.aliasadi.clean.ui.map.MapScreen
 import com.aliasadi.clean.ui.map.MapViewModel
 import com.aliasadi.clean.ui.scanqr.QrCameraScreenLayout
 import com.aliasadi.clean.ui.scanqr.ScanQrViewModel
@@ -28,7 +29,7 @@ fun NavigationBarNestedGraph(
     mainNavController: NavHostController,
     parentRoute: KClass<*>?
 ) {
-    val context = LocalContext.current
+    LocalContext.current
 
     NavHost(
         navController = navController,

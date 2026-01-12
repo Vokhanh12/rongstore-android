@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,5 +20,30 @@ class MapViewModel  @Inject constructor(
 ) : BaseViewModel(){
     private val _uiState = MutableStateFlow<MapUIState>(MapUIState())
     val uiState = _uiState.asStateFlow()
+
+
+    fun selectShop(shop: ShopUi) {
+        _uiState.update {
+            it.copy(selectedShop = shop)
+        }
+    }
+
+    fun clearShop() {
+        _uiState.update {
+            it.copy(selectedShop = null)
+        }
+    }
+
+    fun navigateToShop(shop: ShopUi) {
+        _uiState.update {
+            it.copy(navigatingTo = shop)
+        }
+    }
+
+    fun clearNavigation() {
+        _uiState.update {
+            it.copy(navigatingTo = null)
+        }
+    }
 
 }

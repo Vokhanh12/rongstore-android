@@ -78,7 +78,7 @@ private fun QRCodeResultScreen(
         ?.qrCodeResult
         ?.toQRCodeRawData()
 
-    val context = LocalContext.current
+    LocalContext.current
     val clipboard = LocalClipboardManager.current
 
     Scaffold(

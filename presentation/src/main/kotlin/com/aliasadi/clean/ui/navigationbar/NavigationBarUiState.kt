@@ -16,7 +16,7 @@ data class NavigationBarUiState(
     val bottomItems: List<BottomNavigationBarItem> = listOf(
         BottomNavigationBarItem.Feed,
         BottomNavigationBarItem.ScanQr,
-        BottomNavigationBarItem.MyFavorites,
+        BottomNavigationBarItem.Map,
     )
 )
 

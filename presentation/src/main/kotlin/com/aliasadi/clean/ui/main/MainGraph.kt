@@ -31,7 +31,7 @@ fun MainGraph(
     onThemeUpdated: () -> Unit
 ) {
     val context = LocalContext.current
-    val cameraController: LifecycleCameraController = remember { LifecycleCameraController(context) }.apply {
+    remember { LifecycleCameraController(context) }.apply {
         bindToLifecycle(LocalLifecycleOwner.current)
     }
 

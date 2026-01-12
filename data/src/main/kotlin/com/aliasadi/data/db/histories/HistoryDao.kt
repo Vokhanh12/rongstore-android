@@ -1,4 +1,3 @@
 package com.aliasadi.data.db.histories
 
-class HistoryDao {
-}
+class HistoryDao

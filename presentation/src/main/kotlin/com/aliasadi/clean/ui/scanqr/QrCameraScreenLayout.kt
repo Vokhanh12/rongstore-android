@@ -96,7 +96,7 @@ fun QrCameraScreenLayout(mainNavController: NavHostController, vm: ScanQrViewMod
     }
 
     LaunchedEffect(key1 = Unit) {
-        vm.mainUiState.collectLatest @androidx.annotation.RequiresPermission(android.Manifest.permission.VIBRATE) {
+        vm.mainUiState.collectLatest @RequiresPermission(Manifest.permission.VIBRATE) {
             mainUIState = it
 
             cameraController.cameraSelector = if (it.isFrontCamera && cameraController.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA)) {
@@ -172,7 +172,7 @@ fun QrCameraScreenLayout(mainNavController: NavHostController, vm: ScanQrViewMod
                 is QRCodeAction.CopyText -> {
                     val copyText = it.text
                     if (copyText.isNotEmpty()) {
-                        val clipboard = context.getSystemService(android.content.Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
+                        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as android.content.ClipboardManager
                         val clip = android.content.ClipData.newPlainText("Copied Text", copyText)
                         clipboard.setPrimaryClip(clip)
                         Toast.makeText(context, context.resources.getString(R.string.copied_to_clipboard, copyText), Toast.LENGTH_SHORT).show()
