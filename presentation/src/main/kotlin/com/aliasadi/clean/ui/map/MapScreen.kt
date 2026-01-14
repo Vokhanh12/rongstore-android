@@ -7,7 +7,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.aliasadi.clean.ui.main.MainRouter
 import kotlinx.coroutines.*
@@ -17,11 +16,20 @@ import org.maplibre.android.camera.CameraPosition
 import org.maplibre.android.camera.CameraUpdateFactory
 import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.maps.*
-import org.maplibre.android.style.expressions.Expression.get
-import org.maplibre.android.style.layers.*
+import org.maplibre.android.style.layers.CircleLayer
 import org.maplibre.android.style.layers.PropertyFactory.*
 import org.maplibre.android.style.sources.GeoJsonSource
+import java.net.HttpURLConnection
+import java.net.URL
 import kotlin.math.*
+
+/* =======================================================
+   TAGS
+======================================================= */
+
+private const val TAG_API = "MAP_API"
+private const val TAG_CAMERA = "MAP_CAMERA"
+private const val TAG_TILE = "MAP_TILE"
 
 /* =======================================================
    CONSTANTS
@@ -29,6 +37,10 @@ import kotlin.math.*
 
 private val DEFAULT_USER_POS = LatLng(10.359721, 106.679593)
 private const val DEFAULT_ZOOM = 16.0
+private const val API_URL =
+    "https://d469f0d7f4ab.ngrok-free.app/v1/store-owners:search-by-tiles"
+
+private const val ACCESS_TOKEN = "eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJtVW5SOGhMQ0FnUEMybjJpNVhVSmVHS1BjYllRZHk4SDJLZ2o0V0ZvU1k0In0.eyJleHAiOjE3Njg0MDA5NzQsImlhdCI6MTc2ODM5OTE3NCwianRpIjoiYmY4YjEwY2MtYzFlNS00MDcyLTg1YTQtNDQ1ZTcwMmIzMzI0IiwiaXNzIjoiaHR0cDovLzEwMC4xMTQuMzEuMzA6OTA5MC9yZWFsbXMvcm9uZ3N0b3JlLXJlYWxtIiwiYXVkIjoiYWNjb3VudCIsInN1YiI6IjI1MDkxMTQ1LTVjYTgtNDE2MS05NzQ4LWI3YjcwYmI3Nzg0YyIsInR5cCI6IkJlYXJlciIsImF6cCI6InJvbmdzdG9yZS1zZXJ2aWNlIiwic2lkIjoiNmI4MzBiMjEtYjM4MC00NGY2LWIxZjYtNWUwMGM3OWIxYmJmIiwiYWNyIjoiMSIsImFsbG93ZWQtb3JpZ2lucyI6WyIvKiJdLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsiZGVmYXVsdC1yb2xlcy1yb25nc3RvcmUtcmVhbG0iLCJvZmZsaW5lX2FjY2VzcyIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsicm9uZ3N0b3JlLXNlcnZpY2UiOnsicm9sZXMiOlsiVXNlciJdfSwiYWNjb3VudCI6eyJyb2xlcyI6WyJtYW5hZ2UtYWNjb3VudCIsIm1hbmFnZS1hY2NvdW50LWxpbmtzIiwidmlldy1wcm9maWxlIl19fSwic2NvcGUiOiJvcGVuaWQgZW1haWwgcHJvZmlsZSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwicHJlZmVycmVkX3VzZXJuYW1lIjoidm9raGFuaDEyIn0.nWWCoSqezXKYtCbI0s5-AManCgURi-Hba2LzqVZ5iv50CizxH6HBolZFO3dydSr9DyTaXcq79WEpbvni2K0zzyVvildgL00cieJTs6W6pBJRG75HeldlFX127X858vLpu-60AYPleHPWGohX3ppb4S7V7C8JfiXR3q6XpNP0dOq8W2LFgGJn70XAwCAnBp6C9Q4n8KVQ1snrDEQRn8JfLXrsEZclb2Ibp7tYK4E3YeJMrVfd5CHfYvAbsNdsYx_zrymIPz9lsDT4UuYda97ar4XIAcier-ga04lBa5EJ4EDV9Cq6YjX6QoLscPrbBCCXxVndgjL3hQT_kmPREo7rPg"
 
 /* =======================================================
    DATA MODELS
@@ -42,20 +54,18 @@ data class MapCorners(
 )
 
 data class TileXY(val x: Int, val y: Int)
-data class TileKey(val z: Int, val x: Int, val y: Int)
 
-data class TileLatLngBounds(
-    val north: Double,
-    val south: Double,
-    val west: Double,
-    val east: Double
+data class TileRange(
+    val minX: Int,
+    val maxX: Int,
+    val minY: Int,
+    val maxY: Int,
 )
 
 /* =======================================================
    PAGE
 ======================================================= */
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapPage(
     mainRouter: MainRouter,
@@ -69,40 +79,30 @@ fun MapPage(
    SCREEN
 ======================================================= */
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MapScreen(state: MapUIState) {
 
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
 
     var mapView by remember { mutableStateOf<MapView?>(null) }
     var map by remember { mutableStateOf<MapLibreMap?>(null) }
     var style by remember { mutableStateOf<Style?>(null) }
 
     val tileCache = remember { TileCache() }
-    val prefetchManager = remember {
-        TilePrefetchManager(CoroutineScope(Dispatchers.Main), tileCache)
-    }
-
     var cameraJob by remember { mutableStateOf<Job?>(null) }
 
-    Scaffold(
-        topBar = { TopAppBar(title = { Text(state.title) }) }
-    ) { padding ->
+    Scaffold() { padding ->
 
         AndroidView(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
+            modifier = Modifier.fillMaxSize().padding(padding),
             factory = {
                 MapView(context).apply {
                     onCreate(null)
                     getMapAsync { m ->
                         map = m
-                        m.setStyle(
-                            Style.Builder().fromUri(state.mapStyleUrl)
-                        ) { s ->
-                            style = s
+                        m.setStyle(Style.Builder().fromUri(state.mapStyleUrl)) {
+                            style = it
                         }
                     }
                 }.also { mapView = it }
@@ -110,9 +110,10 @@ fun MapScreen(state: MapUIState) {
         )
     }
 
-    /* ---------------- Camera listener ---------------- */
+    /* ================= CAMERA LISTENER ================= */
 
     LaunchedEffect(style) {
+
         val m = map ?: return@LaunchedEffect
         val s = style ?: return@LaunchedEffect
         val mv = mapView ?: return@LaunchedEffect
@@ -121,19 +122,41 @@ fun MapScreen(state: MapUIState) {
         safeAddUser(s, DEFAULT_USER_POS)
 
         m.addOnCameraIdleListener {
+
             cameraJob?.cancel()
-            cameraJob = CoroutineScope(Dispatchers.Main).launch {
-                delay(200)
+            cameraJob = scope.launch {
+
+                delay(250)
+
+                val zoom = m.cameraPosition.zoom.toInt()
+                if (zoom < 14) {
+                    Log.d(TAG_CAMERA, "Zoom too small ($zoom) → skip")
+                    return@launch
+                }
 
                 val corners = getMapCorners(m, mv)
-                val zoom = m.cameraPosition.zoom.toInt()
+                val range = tileRangeFromCorners(corners, zoom, padding = 1)
 
-                showTileDebugGrid(s, corners, zoom)
+                Log.d(
+                    TAG_TILE,
+                    "Tile z=$zoom x=[${range.minX},${range.maxX}] y=[${range.minY},${range.maxY}]"
+                )
 
-                prefetchManager.onViewportChanged(
-                    corners = corners,
+                if (tileCache.has(range, zoom)) {
+                    Log.d(TAG_TILE, "Tile cache HIT → skip API")
+                    return@launch
+                }
+
+                tileCache.put(range, zoom)
+
+                val items = fetchStoreOwners(zoom, range)
+                Log.d(TAG_API, "API success → items=${items.length()}")
+
+                showStoreOwners(
+                    style = s,
+                    items = items,
                     zoom = zoom,
-                    padding = 1
+                    range = range
                 )
             }
         }
@@ -174,24 +197,12 @@ fun latLngToTile(lat: Double, lng: Double, zoom: Int): TileXY {
     return TileXY(x, y)
 }
 
-fun tileToLatLngBounds(x: Int, y: Int, zoom: Int): TileLatLngBounds {
-    val n = 1 shl zoom
+fun tileRangeFromCorners(
+    c: MapCorners,
+    zoom: Int,
+    padding: Int
+): TileRange {
 
-    val west = x.toDouble() / n * 360 - 180
-    val east = (x + 1).toDouble() / n * 360 - 180
-
-    val northRad = atan(sinh(Math.PI * (1 - 2.0 * y / n)))
-    val southRad = atan(sinh(Math.PI * (1 - 2.0 * (y + 1) / n)))
-
-    return TileLatLngBounds(
-        Math.toDegrees(northRad),
-        Math.toDegrees(southRad),
-        west,
-        east
-    )
-}
-
-fun tilesInViewport(c: MapCorners, zoom: Int): List<Pair<Int, Int>> {
     val tiles = listOf(
         latLngToTile(c.topLeft.latitude, c.topLeft.longitude, zoom),
         latLngToTile(c.topRight.latitude, c.topRight.longitude, zoom),
@@ -199,103 +210,155 @@ fun tilesInViewport(c: MapCorners, zoom: Int): List<Pair<Int, Int>> {
         latLngToTile(c.bottomRight.latitude, c.bottomRight.longitude, zoom),
     )
 
-    val minX = tiles.minOf { it.x }
-    val maxX = tiles.maxOf { it.x }
-    val minY = tiles.minOf { it.y }
-    val maxY = tiles.maxOf { it.y }
-
-    return (minX..maxX).flatMap { x ->
-        (minY..maxY).map { y -> x to y }
-    }
+    return TileRange(
+        tiles.minOf { it.x } - padding,
+        tiles.maxOf { it.x } + padding,
+        tiles.minOf { it.y } - padding,
+        tiles.maxOf { it.y } + padding,
+    )
 }
 
 /* =======================================================
-   DEBUG GRID
+   API
 ======================================================= */
 
-fun buildTileGridGeoJson(tiles: List<Pair<Int, Int>>, zoom: Int): String =
-    """{
-      "type":"FeatureCollection",
-      "features":[${tiles.joinToString(",") { (x, y) ->
-        val b = tileToLatLngBounds(x, y, zoom)
-        """
-        {
-          "type":"Feature",
-          "properties":{"label":"z=$zoom\nx=$x\ny=$y"},
-          "geometry":{
-            "type":"Polygon",
-            "coordinates":[[
-              [${b.west},${b.north}],
-              [${b.east},${b.north}],
-              [${b.east},${b.south}],
-              [${b.west},${b.south}],
-              [${b.west},${b.north}]
-            ]]
-          }
+suspend fun fetchStoreOwners(
+    zoom: Int,
+    range: TileRange,
+): JSONArray = withContext(Dispatchers.IO) {
+
+    val body = JSONObject().apply {
+        put("zoom", zoom)
+        put(
+            "tile_range",
+            JSONObject().apply {
+                put("min_x", range.minX)
+                put("max_x", range.maxX)
+                put("min_y", range.minY)
+                put("max_y", range.maxY)
+            }
+        )
+    }
+
+    Log.d(TAG_API, "REQUEST → $body")
+
+    val conn = URL(API_URL).openConnection() as HttpURLConnection
+
+    try {
+        conn.requestMethod = "POST"
+        conn.setRequestProperty("Content-Type", "application/json")
+        conn.setRequestProperty("Authorization", "Bearer $ACCESS_TOKEN")
+        conn.connectTimeout = 5000
+        conn.readTimeout = 5000
+        conn.doOutput = true
+
+        conn.outputStream.use {
+            it.write(body.toString().toByteArray())
         }
-        """
-    }}]
-    }"""
 
-fun showTileDebugGrid(style: Style, corners: MapCorners, zoom: Int) {
-    val srcId = "tile-debug-source"
-    val geoJson = buildTileGridGeoJson(tilesInViewport(corners, zoom), zoom)
+        val code = conn.responseCode
+        val stream =
+            if (code in 200..299) conn.inputStream else conn.errorStream
 
-    if (style.getSource(srcId) == null) {
-        style.addSource(GeoJsonSource(srcId, geoJson))
-        style.addLayer(
-            LineLayer("tile-debug-line", srcId)
-                .withProperties(lineColor("#FF0000"), lineWidth(1.2f))
-        )
-        style.addLayer(
-            SymbolLayer("tile-debug-text", srcId)
-                .withProperties(textField(get("label")), textSize(12f), textAllowOverlap(true))
-        )
-    } else {
-        style.getSourceAs<GeoJsonSource>(srcId)!!.setGeoJson(geoJson)
+        val responseText = stream.bufferedReader().readText()
+        Log.d(TAG_API, "RESPONSE($code) → $responseText")
+
+        val root = JSONObject(responseText)
+        val data = root.optJSONObject("data") ?: return@withContext JSONArray()
+        val items = data.optJSONArray("items") ?: JSONArray()
+
+        if (items.length() > 0) {
+            Log.d(TAG_API, "Sample item → ${items.getJSONObject(0)}")
+        }
+
+        items
+
+    } catch (e: Exception) {
+        Log.e(TAG_API, "API ERROR", e)
+        JSONArray()
+    } finally {
+        conn.disconnect()
     }
 }
 
 /* =======================================================
-   PREFETCH
+   MAP RENDER
 ======================================================= */
 
-class TileCache(private val maxSize: Int = 200) {
-    private val map = LinkedHashMap<TileKey, Unit>(16, 0.75f, true)
-    fun has(t: TileKey) = map.containsKey(t)
-    fun put(t: TileKey) {
-        map[t] = Unit
-        if (map.size > maxSize) map.remove(map.entries.first().key)
-    }
-}
-
-class TilePrefetchManager(
-    private val scope: CoroutineScope,
-    private val cache: TileCache
+fun showStoreOwners(
+    style: Style,
+    items: JSONArray,
+    zoom: Int,
+    range: TileRange,
 ) {
-    fun onViewportChanged(corners: MapCorners, zoom: Int, padding: Int) {
-        if (zoom < 14) return
 
-        val tiles = tilesInViewport(corners, zoom)
-        val expanded = tiles.flatMap { (x, y) ->
-            (-padding..padding).flatMap { dx ->
-                (-padding..padding).map { dy ->
-                    TileKey(zoom, x + dx, y + dy)
-                }
-            }
-        }
-
-        val need = expanded.filterNot(cache::has)
-        if (need.isEmpty()) return
-
-        scope.launch {
-            delay(600)
-            need.forEach {
-                Log.d("TILE_PREFETCH", it.toString())
-                cache.put(it)
-            }
-        }
+    if (items.length() == 0) {
+        Log.w(TAG_API, "No markers to render")
+        return
     }
+
+    val features = JSONArray()
+
+    for (i in 0 until items.length()) {
+        val o = items.getJSONObject(i)
+        features.put(
+            JSONObject().apply {
+                put("type", "Feature")
+                put("geometry", JSONObject().apply {
+                    put("type", "Point")
+                    put(
+                        "coordinates",
+                        JSONArray()
+                            .put(o.getDouble("lng"))
+                            .put(o.getDouble("lat"))
+                    )
+                })
+            }
+        )
+    }
+
+    val sourceId =
+        "store-z${zoom}-x${range.minX}-${range.maxX}-y${range.minY}-${range.maxY}"
+    val layerId = "$sourceId-layer"
+
+    val fc = JSONObject().apply {
+        put("type", "FeatureCollection")
+        put("features", features)
+    }
+
+    Log.d(TAG_API, "Render markers → source=$sourceId count=${features.length()}")
+
+    if (style.getSource(sourceId) == null) {
+
+        style.addSource(GeoJsonSource(sourceId, fc.toString()))
+
+        style.addLayer(
+            CircleLayer(layerId, sourceId)
+                .withProperties(
+                    circleRadius(6f),
+                    circleColor("#34C759"),
+                    circleOpacity(0.9f)
+                )
+        )
+    }
+}
+
+/* =======================================================
+   TILE CACHE
+======================================================= */
+
+class TileCache {
+    private val set = HashSet<String>()
+
+    fun has(range: TileRange, zoom: Int): Boolean =
+        set.contains(key(range, zoom))
+
+    fun put(range: TileRange, zoom: Int) {
+        set.add(key(range, zoom))
+    }
+
+    private fun key(r: TileRange, z: Int) =
+        "$z:${r.minX}:${r.maxX}:${r.minY}:${r.maxY}"
 }
 
 /* =======================================================
@@ -305,17 +368,20 @@ class TilePrefetchManager(
 fun moveCameraToUser(map: MapLibreMap, pos: LatLng) {
     map.moveCamera(
         CameraUpdateFactory.newCameraPosition(
-            CameraPosition.Builder().target(pos).zoom(DEFAULT_ZOOM).build()
+            CameraPosition.Builder()
+                .target(pos)
+                .zoom(DEFAULT_ZOOM)
+                .build()
         )
     )
 }
 
 fun safeAddUser(style: Style, pos: LatLng) {
-    if (style.getSource("user-source") != null) return
+    if (style.getSource("user") != null) return
 
     style.addSource(
         GeoJsonSource(
-            "user-source",
+            "user",
             """{"type":"FeatureCollection","features":[{
                "type":"Feature",
                "geometry":{"type":"Point","coordinates":[${pos.longitude},${pos.latitude}]}
@@ -324,7 +390,7 @@ fun safeAddUser(style: Style, pos: LatLng) {
     )
 
     style.addLayer(
-        CircleLayer("user-layer", "user-source")
+        CircleLayer("user-layer", "user")
             .withProperties(circleRadius(8f), circleColor("#FF3B30"))
     )
 }
