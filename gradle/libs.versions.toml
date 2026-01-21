@@ -55,6 +55,7 @@ barcodeScanningCommon = "17.0.0"
 datastoreCore = "1.1.7"
 accompanist = "0.37.3"
 protobufPlugin = "0.9.4"
+guava = "33.3.1-android"
 
 
 [libraries]
@@ -74,6 +75,7 @@ lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx
 logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttp" }
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
 
 # Retrofit
 retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }

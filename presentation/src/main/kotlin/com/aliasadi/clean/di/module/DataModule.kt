@@ -63,7 +63,7 @@ class DataModule {
     fun provideMovieRemoveDataSource(movieApi: MovieApi): MovieDataSource.Remote {
         return MovieRemoteDataSource(movieApi)
     }
-
+    
     @Provides
     @Singleton
     fun provideMovieLocalDataSource(
