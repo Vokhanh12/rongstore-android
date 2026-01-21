@@ -10,6 +10,12 @@ android {
         minSdk = libs.versions.minSdk.get().toInt()
     }
 
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -27,11 +33,13 @@ android {
     }
 
     namespace = "com.aliasadi.domain"
+    ndkVersion = "27.1.12297006"
 }
 
 kotlin {
-    jvmToolchain(libs.versions.jdk.get().toInt())
+    jvmToolchain(17)
 }
+
 
 dependencies {
     implementation(libs.paging.common.ktx)

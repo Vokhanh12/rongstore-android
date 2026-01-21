@@ -1,63 +1,70 @@
+import com.google.protobuf.gradle.proto
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.protobuf)
 }
 
 android {
+    namespace = "com.aliasadi.data"
     compileSdk = libs.versions.compileSdk.get().toInt()
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
 
     defaultConfig {
         minSdk = libs.versions.minSdk.get().toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "BASE_URL", "\"https://movies-mock-server.vercel.app/\"")
     }
 
-    buildTypes {
-        release {
-            isMinifyEnabled = false
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+    sourceSets {
+        getByName("main") {
+            proto {
+                srcDir("../../../rongstore-system/apis/proto")
+            }
         }
     }
-
-    buildFeatures {
-        buildConfig = true
-    }
-
-    flavorDimensions.add("environment")
-
-    productFlavors {
-        create("prod") {
-            isDefault = true
-        }
-        create("mock")
-    }
-
-    namespace = "com.aliasadi.data"
+    ndkVersion = "27.1.12297006"
 }
 
 kotlin {
-    jvmToolchain(libs.versions.jdk.get().toInt())
+    jvmToolchain(17)
+}
+
+
+
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.25.3"
+    }
+
+    plugins {
+        create("grpckt") {
+            artifact = "io.grpc:protoc-gen-grpc-kotlin:1.4.1:jdk8@jar"
+        }
+    }
+
+    generateProtoTasks {
+        all().forEach { task ->
+            task.builtins {
+                create("kotlin")
+            }
+            task.plugins {
+                create("grpckt") {
+                    option("use_coroutines=true")
+                }
+            }
+        }
+    }
 }
 
 dependencies {
-    api(project(":domain"))
-    implementation(libs.androidx.datastore.core)
-    testImplementation(project(":core-test"))
-
-    // Room
-    implementation(libs.room.runtime)
-    implementation(libs.room.ktx)
-    implementation(libs.room.paging)
-    implementation(libs.paging.common.ktx)
-    ksp(libs.room.compiler)
-
-    // Retrofit
-    implementation(libs.retrofit)
-    implementation(libs.converter.gson)
-    implementation(libs.retrofit2.kotlin.coroutines.adapter)
-
-    // Datastore
-    implementation(libs.androidx.datastore.preferences.core)
-    implementation(libs.androidx.datastore.preferences)
+    implementation("io.grpc:grpc-kotlin-stub:1.4.1")
+    implementation("io.grpc:grpc-protobuf:1.63.0")
+    implementation("com.google.protobuf:protobuf-kotlin:3.25.3")
 }
