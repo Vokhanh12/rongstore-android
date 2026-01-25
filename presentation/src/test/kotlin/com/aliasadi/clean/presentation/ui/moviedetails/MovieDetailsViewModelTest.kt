@@ -5,7 +5,7 @@ import com.aliasadi.clean.ui.moviedetails.MovieDetailsBundle
 import com.aliasadi.clean.ui.moviedetails.MovieDetailsState
 import com.aliasadi.clean.ui.moviedetails.MovieDetailsViewModel
 import com.aliasadi.core.test.base.BaseTest
-import com.aliasadi.domain.entities.MovieEntity
+import com.aliasadi.domain.model.entities.MovieEntity
 import com.aliasadi.domain.usecase.AddMovieToFavorite
 import com.aliasadi.domain.usecase.CheckFavoriteStatus
 import com.aliasadi.domain.usecase.GetMovieDetails

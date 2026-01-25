@@ -8,7 +8,7 @@ import androidx.work.WorkManager
 import com.aliasadi.clean.di.AppSettingsSharedPreference
 import com.aliasadi.data.util.NetworkMonitorImpl
 import com.aliasadi.data.util.DiskExecutor
-import com.aliasadi.domain.entities.userSettingPreferences
+import com.aliasadi.domain.model.entities.userSettingPreferences
 import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides

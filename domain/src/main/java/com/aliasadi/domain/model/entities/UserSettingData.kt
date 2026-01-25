@@ -1,4 +1,4 @@
-package com.aliasadi.domain.entities
+package com.aliasadi.domain.model.entities
 
 
 import android.content.Context

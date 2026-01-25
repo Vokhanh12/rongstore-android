@@ -1,6 +1,5 @@
 package com.aliasadi.clean.ui.result
 
-import android.content.Intent
 import android.graphics.Bitmap
 import androidx.activity.compose.BackHandler
 import androidx.annotation.DrawableRes
@@ -31,7 +30,7 @@ import androidx.navigation.NavHostController
 import com.aliasadi.clean.R
 import com.aliasadi.clean.ui.navigationbar.TopNavigationBar
 import com.aliasadi.clean.ui.shadow
-import com.aliasadi.domain.entities.QRCodeEntity
+import com.aliasadi.domain.model.entities.QRCodeEntity
 import com.google.mlkit.vision.barcode.common.Barcode
 import java.text.SimpleDateFormat
 import java.util.*

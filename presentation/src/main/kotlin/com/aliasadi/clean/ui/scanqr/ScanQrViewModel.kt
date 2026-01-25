@@ -8,11 +8,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.aliasadi.clean.ui.result.QRCodeRawData
 import com.aliasadi.data.repository.user.UserDataSource
-import com.aliasadi.domain.entities.QRCodeContact
-import com.aliasadi.domain.entities.QRCodePhone
-import com.aliasadi.domain.entities.QRCodeSMS
-import com.aliasadi.domain.entities.QRCodeURL
-import com.aliasadi.domain.entities.QRCodeWifi
+import com.aliasadi.domain.model.entities.QRCodeContact
+import com.aliasadi.domain.model.entities.QRCodePhone
+import com.aliasadi.domain.model.entities.QRCodeSMS
+import com.aliasadi.domain.model.entities.QRCodeURL
+import com.aliasadi.domain.model.entities.QRCodeWifi
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.squareup.moshi.Moshi
 import dagger.hilt.android.lifecycle.HiltViewModel

@@ -2,7 +2,7 @@ package com.aliasadi.data.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.aliasadi.domain.entities.MovieEntity
+import com.aliasadi.domain.model.entities.MovieEntity
 
 /**
  * Created by Ali Asadi on 13/05/2020

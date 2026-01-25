@@ -119,75 +119,66 @@ fun MapScreen(state: MapUIState) {
 
     Scaffold(
         bottomBar = {
-            Surface(
-                shadowElevation = 8.dp
-            ) {
+            Surface(shadowElevation = 8.dp) {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp),
+                    modifier = Modifier.fillMaxWidth().padding(12.dp),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
 
-                    Text(
-                        text = "Mode: $mapMode",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
+                    Text("Mode: $mapMode")
 
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
 
-                        when (mapMode) {
-                            MapMode.VIEW_ONLY -> {
-                                Button(
-                                    onClick = {
-                                    singlePoint = null
-                                    mapMode = MapMode.PLACE_SINGLE
-                                })
-                                ) {
-                                    Text("Tạo cửa hàng")
-                                }
+                        if (mapMode == MapMode.VIEW_ONLY) {
 
-                                Button(onClick = {
-                                    multiPoints.clear()
-                                    mapMode = MapMode.PLACE_MULTI
-                                }
-                                    contentColor = Color.White
-                                )
-                                ) {
-                                    Text("Tạo nhiều cửa hàng")
-                                }
+                            Button(onClick = {
+                                singlePoint = null
+                                mapMode = MapMode.PLACE_SINGLE
+                            }) {
+                                Text("Tạo cửa hàng")
                             }
-                            MapMode.PLACE_MARKER -> {
-                                Button(
-                                    onClick = {
-                                        // TODO: xử lý lưu (API / ViewModel)
-                                        mapMode = MapMode.VIEW_ONLY
-                                    },
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color(0xFF007AFF),
-                                        contentColor = Color.White
-                                    )
-                                ) {
-                                    Text("Lưu")
-                                }
 
-                                Button(
-                                    onClick = {
-                                        // TODO: rollback marker nếu cần
-                                        mapMode = MapMode.VIEW_ONLY
-                                    },
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color(0xFFFF3B30),
-                                        contentColor = Color.White
-                                    )
-                                ) {
-                                    Text("Hủy bỏ")
+                            Button(onClick = {
+                                multiPoints.clear()
+                                mapMode = MapMode.PLACE_MULTI
+                            }) {
+                                Text("Tạo nhiều cửa hàng")
+                            }
+
+                        } else {
+
+                            Button(onClick = {
+                                scope.launch {
+                                    when (mapMode) {
+                                        MapMode.PLACE_SINGLE -> {
+                                            singlePoint?.let {
+                                                createStoreDemo(listOf(it))
+                                            }
+                                        }
+                                        MapMode.PLACE_MULTI -> {
+                                            if (multiPoints.isNotEmpty()) {
+                                                createStoreDemo(multiPoints.toList())
+                                            }
+                                        }
+                                        else -> {}
+                                    }
+                                    clearCreateMarkers(style)
+                                    mapMode = MapMode.VIEW_ONLY
                                 }
+                            }) {
+                                Text("Lưu")
+                            }
+
+                            Button(onClick = {
+                                clearCreateMarkers(style)
+                                singlePoint = null
+                                multiPoints.clear()
+                                mapMode = MapMode.VIEW_ONLY
+                            }) {
+                                Text("Hủy bỏ")
                             }
                         }
                     }
-
-
                 }
             }
         }
@@ -199,10 +190,10 @@ fun MapScreen(state: MapUIState) {
                     onCreate(null)
                     getMapAsync { m ->
                         map = m
-                        m.setStyle(
-                            Style.Builder().fromUri(state.mapStyleUrl)
-                        ) { s ->
-                            style = s
+                        m.setStyle(Style.Builder().fromUri(state.mapStyleUrl)) {
+                            style = it
+                            moveCameraToUser(m, DEFAULT_USER_POS)
+                            safeAddUser(it, DEFAULT_USER_POS)
                         }
                     }
                 }.also { mapView = it }
@@ -249,80 +240,124 @@ fun MapScreen(state: MapUIState) {
     }
 
     DisposableEffect(map, style, mapMode) {
-        val m = map ?: return@DisposableEffect onDispose { }
-        val s = style ?: return@DisposableEffect onDispose { }
+        val m = map ?: return@DisposableEffect onDispose {}
+        val s = style ?: return@DisposableEffect onDispose {}
 
         val listener = MapLibreMap.OnMapClickListener { latLng ->
 
-            if (mapMode != MapMode.PLACE_MARKER) {
-                return@OnMapClickListener false
+            when (mapMode) {
+
+                MapMode.PLACE_SINGLE -> {
+                    singlePoint = latLng
+                    showSingleCreateMarker(s, latLng)
+                    true
+                }
+
+                MapMode.PLACE_MULTI -> {
+                    multiPoints.add(latLng)
+                    showMultiCreateMarkers(s, multiPoints)
+                    true
+                }
+
+                else -> false
             }
-
-            Log.d(
-                "MAP_CREATE_STORE",
-                "lat=${latLng.latitude}, lng=${latLng.longitude}"
-            )
-
-            addOrMoveTestMarker(s, latLng)
-
-            // ✅ GỌI CALLBACK → KHÔNG GÁN TRỰC TIẾP
-            setMapMode(MapMode.VIEW_ONLY)
-
-            true
         }
 
         m.addOnMapClickListener(listener)
-
-        onDispose {
-            m.removeOnMapClickListener(listener)
-        }
+        onDispose { m.removeOnMapClickListener(listener) }
     }
 
 
 }
 
+/* =======================================================
+   CREATE MARKERS
+======================================================= */
+fun showSingleCreateMarker(style: Style, latLng: LatLng) {
+    val src = "create-single-src"
+    val layer = "create-single-layer"
 
-fun addOrMoveTestMarker(style: Style, latLng: LatLng) {
+    val geo = """{
+      "type":"FeatureCollection",
+      "features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[${latLng.longitude},${latLng.latitude}]}}]
+    }"""
 
-    val sourceId = "test-marker-source"
-    val layerId = "test-marker-layer"
+    (style.getSource(src) as? GeoJsonSource)?.setGeoJson(geo)
+        ?: run {
+            style.addSource(GeoJsonSource(src, geo))
+            style.addLayer(
+                CircleLayer(layer, src).withProperties(
+                    circleRadius(10f),
+                    circleColor("#007AFF")
+                )
+            )
+        }
+}
 
-    val geoJson = JSONObject().apply {
-        put("type", "FeatureCollection")
-        put("features", JSONArray().put(
-            JSONObject().apply {
+fun showMultiCreateMarkers(style: Style, points: List<LatLng>) {
+    val src = "create-multi-src"
+    val layer = "create-multi-layer"
+
+    val features = JSONArray().apply {
+        points.forEach {
+            put(JSONObject().apply {
                 put("type", "Feature")
                 put("geometry", JSONObject().apply {
                     put("type", "Point")
-                    put(
-                        "coordinates",
-                        JSONArray()
-                            .put(latLng.longitude)
-                            .put(latLng.latitude)
-                    )
+                    put("coordinates", JSONArray().put(it.longitude).put(it.latitude))
                 })
-            }
-        ))
+            })
+        }
     }
 
-    // Nếu đã tồn tại → update
-    val source = style.getSource(sourceId) as? GeoJsonSource
-    if (source != null) {
-        source.setGeoJson(geoJson.toString())
-        return
-    }
+    val geo = JSONObject().apply {
+        put("type", "FeatureCollection")
+        put("features", features)
+    }.toString()
 
-    // Nếu chưa → add mới
-    style.addSource(GeoJsonSource(sourceId, geoJson.toString()))
-    style.addLayer(
-        CircleLayer(layerId, sourceId).withProperties(
-            circleRadius(10f),
-            circleColor("#34C759"),   // xanh lá
-            circleStrokeColor("#000000"),
-            circleStrokeWidth(2f)
-        )
-    )
+    (style.getSource(src) as? GeoJsonSource)?.setGeoJson(geo)
+        ?: run {
+            style.addSource(GeoJsonSource(src, geo))
+            style.addLayer(
+                CircleLayer(layer, src).withProperties(
+                    circleRadius(8f),
+                    circleColor("#34C759")
+                )
+            )
+        }
 }
+
+fun clearCreateMarkers(style: Style?) {
+    style ?: return
+    listOf(
+        "create-single-layer" to "create-single-src",
+        "create-multi-layer" to "create-multi-src"
+    ).forEach { (l, s) ->
+        style.getLayer(l)?.let { style.removeLayer(it) }
+        style.getSource(s)?.let { style.removeSource(it) }
+    }
+}
+
+/* =======================================================
+   DEMO API
+======================================================= */
+
+suspend fun createStoreDemo(points: List<LatLng>) =
+    withContext(Dispatchers.IO) {
+
+        val body = JSONObject().apply {
+            put("items", JSONArray().apply {
+                points.forEach {
+                    put(JSONObject().apply {
+                        put("lat", it.latitude)
+                        put("lng", it.longitude)
+                    })
+                }
+            })
+        }
+
+        Log.d("CREATE_STORE_DEMO", body.toString())
+    }
 
 
 /* =======================================================

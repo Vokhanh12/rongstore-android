@@ -42,7 +42,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.aliasadi.clean.R
-import com.aliasadi.domain.entities.UserSettingData
+import com.aliasadi.domain.model.entities.UserSettingData
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 

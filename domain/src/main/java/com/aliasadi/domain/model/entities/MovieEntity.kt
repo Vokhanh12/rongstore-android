@@ -1,4 +1,4 @@
-package com.aliasadi.domain.entities
+package com.aliasadi.domain.model.entities
 
 /**
  * Created by Ali Asadi on 13/05/2020

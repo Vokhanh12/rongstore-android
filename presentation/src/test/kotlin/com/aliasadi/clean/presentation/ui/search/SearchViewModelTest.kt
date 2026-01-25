@@ -11,7 +11,7 @@ import com.aliasadi.clean.ui.search.SearchUiState
 import com.aliasadi.clean.ui.search.SearchViewModel
 import com.aliasadi.clean.ui.search.SearchViewModel.Companion
 import com.aliasadi.core.test.base.BaseTest
-import com.aliasadi.domain.entities.MovieEntity
+import com.aliasadi.domain.model.entities.MovieEntity
 import com.aliasadi.domain.usecase.SearchMovies
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.MutableStateFlow

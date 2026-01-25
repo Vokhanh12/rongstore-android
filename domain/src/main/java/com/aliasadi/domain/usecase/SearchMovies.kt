@@ -1,7 +1,7 @@
 package com.aliasadi.domain.usecase
 
 import androidx.paging.PagingData
-import com.aliasadi.domain.entities.MovieEntity
+import com.aliasadi.domain.model.entities.MovieEntity
 import com.aliasadi.domain.repository.MovieRepository
 import kotlinx.coroutines.flow.Flow
 

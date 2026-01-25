@@ -8,7 +8,7 @@ import app.cash.turbine.test
 import com.aliasadi.clean.ui.favorites.FavoritesNavigationState.MovieDetails
 import com.aliasadi.clean.ui.favorites.FavoritesViewModel
 import com.aliasadi.core.test.base.BaseTest
-import com.aliasadi.domain.entities.MovieEntity
+import com.aliasadi.domain.model.entities.MovieEntity
 import com.aliasadi.domain.usecase.GetFavoriteMovies
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.flowOf

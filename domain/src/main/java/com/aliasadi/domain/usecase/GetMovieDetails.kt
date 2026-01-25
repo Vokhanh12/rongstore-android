@@ -1,6 +1,6 @@
 package com.aliasadi.domain.usecase
 
-import com.aliasadi.domain.entities.MovieEntity
+import com.aliasadi.domain.model.entities.MovieEntity
 import com.aliasadi.domain.repository.MovieRepository
 import com.aliasadi.domain.util.Result
 

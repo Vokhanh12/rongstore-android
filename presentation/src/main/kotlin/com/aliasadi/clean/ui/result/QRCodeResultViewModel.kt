@@ -4,7 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.aliasadi.domain.entities.QRCodeEntity
+import com.aliasadi.domain.model.entities.QRCodeEntity
 import com.aliasadi.domain.usecase.GetQRCodeByRowIdFlowUseCase
 import com.google.mlkit.vision.barcode.common.Barcode
 import dagger.hilt.android.lifecycle.HiltViewModel

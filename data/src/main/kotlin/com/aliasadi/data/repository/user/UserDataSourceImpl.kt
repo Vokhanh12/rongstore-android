@@ -3,8 +3,8 @@ package com.aliasadi.data.repository.user
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
-import com.aliasadi.domain.entities.SettingPreferencesKey
-import com.aliasadi.domain.entities.UserSettingData
+import com.aliasadi.domain.model.entities.SettingPreferencesKey
+import com.aliasadi.domain.model.entities.UserSettingData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map

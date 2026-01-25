@@ -1,6 +1,6 @@
 package com.aliasadi.data.repository.user
 
-import com.aliasadi.domain.entities.UserSettingData
+import com.aliasadi.domain.model.entities.UserSettingData
 import kotlinx.coroutines.flow.Flow
 
 interface UserDataSource {

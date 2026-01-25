@@ -1,6 +1,6 @@
 package com.aliasadi.data.entities
 
-import com.aliasadi.domain.entities.MovieEntity
+import com.aliasadi.domain.model.entities.MovieEntity
 import com.google.gson.annotations.SerializedName
 
 /**

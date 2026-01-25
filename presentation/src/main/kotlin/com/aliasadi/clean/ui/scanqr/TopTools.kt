@@ -31,7 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.aliasadi.clean.ui.shadow
 import com.aliasadi.clean.ui.theme.QRCodeScannerTheme
-import com.aliasadi.domain.entities.UserSettingData
+import com.aliasadi.domain.model.entities.UserSettingData
 
 val topIconSize = 42.dp
 val topIconPadding = 4.dp

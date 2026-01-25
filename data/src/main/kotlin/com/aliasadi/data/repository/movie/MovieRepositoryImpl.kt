@@ -7,7 +7,7 @@ import androidx.paging.PagingData
 import androidx.paging.map
 import com.aliasadi.data.entities.toDomain
 import com.aliasadi.data.repository.movie.favorite.FavoriteMoviesDataSource
-import com.aliasadi.domain.entities.MovieEntity
+import com.aliasadi.domain.model.entities.MovieEntity
 import com.aliasadi.domain.repository.MovieRepository
 import com.aliasadi.domain.util.Result
 import com.aliasadi.domain.util.Result.Error
