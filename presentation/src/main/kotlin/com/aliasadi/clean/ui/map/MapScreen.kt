@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.aliasadi.clean.ui.main.MainRouter
 import kotlinx.coroutines.*
@@ -69,6 +71,13 @@ data class TileBounds(
     val east: Double
 )
 
+enum class MapMode {
+    VIEW_ONLY,
+    PLACE_SINGLE,   // tạo 1 cửa hàng
+    PLACE_MULTI     // tạo nhiều cửa hàng
+}
+
+
 /* =======================================================
    PAGE
 ======================================================= */
@@ -99,7 +108,90 @@ fun MapScreen(state: MapUIState) {
     val tileCache = remember { TileCache() }
     var cameraJob by remember { mutableStateOf<Job?>(null) }
 
-    Scaffold { padding ->
+    var mapMode by remember { mutableStateOf(MapMode.VIEW_ONLY) }
+
+    val setMapMode: (MapMode) -> Unit = { mode ->
+        mapMode = mode
+    }
+
+    var singlePoint by remember { mutableStateOf<LatLng?>(null) }
+    val multiPoints = remember { mutableStateListOf<LatLng>() }
+
+    Scaffold(
+        bottomBar = {
+            Surface(
+                shadowElevation = 8.dp
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+
+                    Text(
+                        text = "Mode: $mapMode",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+
+                        when (mapMode) {
+                            MapMode.VIEW_ONLY -> {
+                                Button(
+                                    onClick = {
+                                    singlePoint = null
+                                    mapMode = MapMode.PLACE_SINGLE
+                                })
+                                ) {
+                                    Text("Tạo cửa hàng")
+                                }
+
+                                Button(onClick = {
+                                    multiPoints.clear()
+                                    mapMode = MapMode.PLACE_MULTI
+                                }
+                                    contentColor = Color.White
+                                )
+                                ) {
+                                    Text("Tạo nhiều cửa hàng")
+                                }
+                            }
+                            MapMode.PLACE_MARKER -> {
+                                Button(
+                                    onClick = {
+                                        // TODO: xử lý lưu (API / ViewModel)
+                                        mapMode = MapMode.VIEW_ONLY
+                                    },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color(0xFF007AFF),
+                                        contentColor = Color.White
+                                    )
+                                ) {
+                                    Text("Lưu")
+                                }
+
+                                Button(
+                                    onClick = {
+                                        // TODO: rollback marker nếu cần
+                                        mapMode = MapMode.VIEW_ONLY
+                                    },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color(0xFFFF3B30),
+                                        contentColor = Color.White
+                                    )
+                                ) {
+                                    Text("Hủy bỏ")
+                                }
+                            }
+                        }
+                    }
+
+
+                }
+            }
+        }
+    ) { padding ->
         AndroidView(
             modifier = Modifier.fillMaxSize().padding(padding),
             factory = {
@@ -155,7 +247,83 @@ fun MapScreen(state: MapUIState) {
     DisposableEffect(Unit) {
         onDispose { mapView?.onDestroy() }
     }
+
+    DisposableEffect(map, style, mapMode) {
+        val m = map ?: return@DisposableEffect onDispose { }
+        val s = style ?: return@DisposableEffect onDispose { }
+
+        val listener = MapLibreMap.OnMapClickListener { latLng ->
+
+            if (mapMode != MapMode.PLACE_MARKER) {
+                return@OnMapClickListener false
+            }
+
+            Log.d(
+                "MAP_CREATE_STORE",
+                "lat=${latLng.latitude}, lng=${latLng.longitude}"
+            )
+
+            addOrMoveTestMarker(s, latLng)
+
+            // ✅ GỌI CALLBACK → KHÔNG GÁN TRỰC TIẾP
+            setMapMode(MapMode.VIEW_ONLY)
+
+            true
+        }
+
+        m.addOnMapClickListener(listener)
+
+        onDispose {
+            m.removeOnMapClickListener(listener)
+        }
+    }
+
+
 }
+
+
+fun addOrMoveTestMarker(style: Style, latLng: LatLng) {
+
+    val sourceId = "test-marker-source"
+    val layerId = "test-marker-layer"
+
+    val geoJson = JSONObject().apply {
+        put("type", "FeatureCollection")
+        put("features", JSONArray().put(
+            JSONObject().apply {
+                put("type", "Feature")
+                put("geometry", JSONObject().apply {
+                    put("type", "Point")
+                    put(
+                        "coordinates",
+                        JSONArray()
+                            .put(latLng.longitude)
+                            .put(latLng.latitude)
+                    )
+                })
+            }
+        ))
+    }
+
+    // Nếu đã tồn tại → update
+    val source = style.getSource(sourceId) as? GeoJsonSource
+    if (source != null) {
+        source.setGeoJson(geoJson.toString())
+        return
+    }
+
+    // Nếu chưa → add mới
+    style.addSource(GeoJsonSource(sourceId, geoJson.toString()))
+    style.addLayer(
+        CircleLayer(layerId, sourceId).withProperties(
+            circleRadius(10f),
+            circleColor("#34C759"),   // xanh lá
+            circleStrokeColor("#000000"),
+            circleStrokeWidth(2f)
+        )
+    )
+}
+
 
 /* =======================================================
    VIEWPORT
