@@ -1,5 +1,7 @@
 package com.aliasadi.clean.ui.map
 
+import com.aliasadi.domain.model.api.common.v1.MutationResult
+
 /**
  * Trạng thái UI cho màn hình Map
  */
@@ -10,5 +12,15 @@ data class MapUIState(
     val showLoading: Boolean = false,
     val errorMessage: String? = null,
     val selectedShop: ShopUi? = null,
-    val navigatingTo: ShopUi? = null
+    val navigatingTo: ShopUi? = null,
+    val isLoading: Boolean = false,
+    val error: MapError? = null,
+    val results: List<MutationResult> = emptyList()
 )
+
+sealed class MapError {
+    object Network : MapError()
+    object NotFound : MapError()
+    object Unauthorized : MapError()
+    object Unknown : MapError()
+}

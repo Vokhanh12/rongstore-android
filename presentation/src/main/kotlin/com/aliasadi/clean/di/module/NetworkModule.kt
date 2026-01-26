@@ -2,6 +2,7 @@ package com.aliasadi.clean.di.module
 
 import com.aliasadi.data.BuildConfig
 import com.aliasadi.data.api.MovieApi
+import com.aliasadi.data.remote.http.StoreOwnerHttpApi
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import dagger.Module
 import dagger.Provides
@@ -42,4 +43,13 @@ class NetworkModule {
     fun provideMovieApi(retrofit: Retrofit): MovieApi {
         return retrofit.create(MovieApi::class.java)
     }
+
+    @Provides
+    @Singleton
+    fun provideStoreOwnerHttpApi(
+        retrofit: Retrofit
+    ): StoreOwnerHttpApi {
+        return retrofit.create(StoreOwnerHttpApi::class.java)
+    }
+
 }

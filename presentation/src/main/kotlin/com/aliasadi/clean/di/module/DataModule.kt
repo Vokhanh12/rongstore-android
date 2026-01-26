@@ -7,6 +7,8 @@ import com.aliasadi.data.api.MovieApi
 import com.aliasadi.data.db.favoritemovies.FavoriteMovieDao
 import com.aliasadi.data.db.movies.MovieDao
 import com.aliasadi.data.db.movies.MovieRemoteKeyDao
+import com.aliasadi.data.remote.http.StoreOwnerHttpAdapter
+import com.aliasadi.data.remote.http.StoreOwnerHttpApi
 import com.aliasadi.data.repository.movie.MovieDataSource
 import com.aliasadi.data.repository.movie.MovieLocalDataSource
 import com.aliasadi.data.repository.movie.MovieRemoteDataSource
@@ -17,6 +19,7 @@ import com.aliasadi.data.repository.movie.favorite.FavoriteMoviesLocalDataSource
 import com.aliasadi.data.repository.user.UserDataSource
 import com.aliasadi.data.repository.user.UserDataSourceImpl
 import com.aliasadi.data.util.NetworkMonitorImpl
+import com.aliasadi.domain.port.StoreOwnerRemotePort
 import com.aliasadi.domain.repository.MovieRepository
 import com.aliasadi.domain.usecase.AddMovieToFavorite
 import com.aliasadi.domain.usecase.CheckFavoriteStatus
@@ -124,4 +127,12 @@ class DataModule {
     fun provideNetworkMonitor(
         @ApplicationContext context: Context
     ): NetworkMonitor = NetworkMonitorImpl(context)
+
+    @Provides
+    @Singleton
+    fun provideStoreOwnerRemotePort(
+        api: StoreOwnerHttpApi
+    ): StoreOwnerRemotePort {
+        return StoreOwnerHttpAdapter(api)
+    }
 }

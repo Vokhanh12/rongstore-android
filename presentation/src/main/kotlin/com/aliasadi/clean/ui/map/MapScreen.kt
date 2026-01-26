@@ -88,7 +88,7 @@ fun MapPage(
     viewModel: MapViewModel,
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    MapScreen(uiState)
+    MapScreen(viewModel,uiState)
 }
 
 /* =======================================================
@@ -96,7 +96,7 @@ fun MapPage(
 ======================================================= */
 
 @Composable
-fun MapScreen(state: MapUIState) {
+fun MapScreen(viewModel: MapViewModel ,state: MapUIState) {
 
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -152,16 +152,17 @@ fun MapScreen(state: MapUIState) {
                                     when (mapMode) {
                                         MapMode.PLACE_SINGLE -> {
                                             singlePoint?.let {
-                                                createStoreDemo(listOf(it))
+                                                viewModel.saveStores(listOf(it))
                                             }
                                         }
                                         MapMode.PLACE_MULTI -> {
                                             if (multiPoints.isNotEmpty()) {
-                                                createStoreDemo(multiPoints.toList())
+                                                viewModel.saveStores(multiPoints.toList())
                                             }
                                         }
                                         else -> {}
                                     }
+
                                     clearCreateMarkers(style)
                                     mapMode = MapMode.VIEW_ONLY
                                 }
