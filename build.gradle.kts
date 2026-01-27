@@ -19,4 +19,5 @@ subprojects {
     apply(from = "$rootDir/detekt.gradle")
     // Apply Kover plugin for all modules
     apply(from = "$rootDir/kover.gradle")
+
 }

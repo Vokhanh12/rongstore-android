@@ -19,7 +19,9 @@ android {
     defaultConfig {
         minSdk = libs.versions.minSdk.get().toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        buildConfigField("String", "BASE_URL", "\"https://movies-mock-server.vercel.app/\"")
+        //buildConfigField("String", "BASE_URL", "\"https://movies-mock-server.vercel.app/\"")
+        buildConfigField("String", "BASE_URL", "\"https://ce12aaa2a11a.ngrok-free.app/\"")
+
     }
 
     packaging {
@@ -100,6 +102,8 @@ protobuf {
 
 
 dependencies {
+    implementation(project(":generated:iam-client"))
+
     implementation("io.grpc:grpc-stub:1.63.0")
     implementation("io.grpc:grpc-protobuf:1.63.0")
     implementation("io.grpc:grpc-kotlin-stub:1.4.1")

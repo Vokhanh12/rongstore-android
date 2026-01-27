@@ -1,8 +1,11 @@
 package com.aliasadi.clean.di.module
 
+import android.util.Log
 import com.aliasadi.data.BuildConfig
 import com.aliasadi.data.api.MovieApi
-import com.aliasadi.data.remote.http.StoreOwnerHttpApi
+import com.aliasadi.data.auth.ITokenProvider
+import com.aliasadi.data.remote.http.AuthInterceptor
+import com.aliasadi.iam.client.api.IamServiceApi
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import dagger.Module
 import dagger.Provides
@@ -23,20 +26,34 @@ class NetworkModule {
 
     @Singleton
     @Provides
-    fun provideRetrofit(client: OkHttpClient): Retrofit {
+    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit {
         return Retrofit.Builder()
             .addCallAdapterFactory(CoroutineCallAdapterFactory())
             .addConverterFactory(GsonConverterFactory.create())
-            .client(client)
+            .client(okHttpClient)
             .baseUrl(BuildConfig.BASE_URL)
             .build()
     }
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(): OkHttpClient = OkHttpClient.Builder()
-        .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BASIC))
-        .build()
+    fun provideOkHttpClient(tokenProvider: ITokenProvider): OkHttpClient {
+
+        val loggingInterceptor = HttpLoggingInterceptor { message ->
+            Log.d("HTTP", message)
+        }.apply {
+            level = if (BuildConfig.DEBUG) {
+                HttpLoggingInterceptor.Level.BODY
+            } else {
+                HttpLoggingInterceptor.Level.NONE
+            }
+        }
+
+        return OkHttpClient.Builder()
+            .addInterceptor(loggingInterceptor)
+            .addInterceptor(AuthInterceptor(tokenProvider))
+            .build()
+    }
 
     @Singleton
     @Provides
@@ -46,10 +63,10 @@ class NetworkModule {
 
     @Provides
     @Singleton
-    fun provideStoreOwnerHttpApi(
+    fun provideIamHttpApi(
         retrofit: Retrofit
-    ): StoreOwnerHttpApi {
-        return retrofit.create(StoreOwnerHttpApi::class.java)
+    ): IamServiceApi {
+        return retrofit.create(IamServiceApi::class.java)
     }
 
 }

@@ -21,3 +21,4 @@ sealed class StoreOwnerMutateCommand {
         val id: String
     ) : StoreOwnerMutateCommand()
 }
+

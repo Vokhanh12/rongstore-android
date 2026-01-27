@@ -1,47 +1,52 @@
 package com.aliasadi.data.mapper.common.v1
 
-import com.aliasadi.domain.model.api.common.v1.ErrorCode
-import common.v1.ErrorOuterClass
-import com.aliasadi.domain.model.api.common.v1.Error
-import com.aliasadi.domain.model.api.common.v1.ErrorDetail
-import com.aliasadi.domain.model.api.common.v1.MutationFailureReason
+import com.aliasadi.domain.model.api.common.v1.*
+import com.aliasadi.iam.client.dto.V1Error
+import com.aliasadi.iam.client.dto.V1MutateResult
 
-fun ErrorOuterClass.Error.toDomainError(): Error {
-    return Error(
-        code = toDomainCode(),
-        message = message,
-        retryable = retryable,
-        details = detailsList.map {
-            ErrorDetail(
-                field = it.field.takeIf { f -> f.isNotBlank() },
-                message = it.message
-            )
-        }
-    )
+fun V1MutateResult.toDomainFromHttp(): MutationResult {
+    val opIdSafe = opId ?: "unknown-op"
+
+    return if (success == true) {
+        MutationSuccess(
+            opId = opIdSafe,
+            resourceId = resourceId
+                ?: error("MutationSuccess nhưng resourceId = null (opId=$opIdSafe)")
+        )
+    } else {
+        MutationFailure(
+            opId = opIdSafe,
+            reason = error.toDomainFailureReason()
+        )
+    }
 }
 
-private fun ErrorOuterClass.Error.toDomainCode(): ErrorCode =
-    when (code) {
-        "AUTH-HAND-001" -> ErrorCode.UNAUTHORIZED
-        "AUTH-HAND-403" -> ErrorCode.FORBIDDEN
-        "NOT_FOUND" -> ErrorCode.NOT_FOUND
-        "VALIDATION_ERROR" -> ErrorCode.VALIDATION_ERROR
-        "CONFLICT" -> ErrorCode.CONFLICT
-        "RATE_LIMIT" -> ErrorCode.RATE_LIMITED
-        else -> ErrorCode.UNKNOWN
-    }
+/* ================= Failure mapping ================= */
 
+fun V1Error?.toDomainFailureReason(): MutationFailureReason =
+    when (this?.code) {
+        "PERMISSION_DENIED" ->
+            MutationFailureReason.PermissionDenied
 
-fun ErrorOuterClass.Error.toDomainReason(): MutationFailureReason =
-    when (code) {
         "NOT_FOUND" ->
             MutationFailureReason.NotFound
 
-        "AUTH-HAND-403" ->
-            MutationFailureReason.PermissionDenied
-
         else ->
             MutationFailureReason.BusinessError(
-                error = toDomainError()
+                error = Error(
+                    code = toDomainErrorCode(),
+                    message = this?.message ?: "Unknown error",
+                    retryable = false,
+                    details = emptyList()
+                )
             )
+    }
+
+private fun V1Error?.toDomainErrorCode(): ErrorCode =
+    when (this?.code) {
+        "PERMISSION_DENIED" -> ErrorCode.FORBIDDEN
+        "NOT_FOUND" -> ErrorCode.NOT_FOUND
+        "VALIDATION_ERROR" -> ErrorCode.VALIDATION_ERROR
+        "CONFLICT" -> ErrorCode.CONFLICT
+        else -> ErrorCode.UNKNOWN
     }

@@ -78,6 +78,8 @@ dependencies {
     implementation(libs.material3)
     testImplementation(project(":core-test"))
 
+    implementation(project(":generated:iam-client"))
+
     // Kover Coverage (All Modules)
     kover(project(":data"))
     kover(project(":domain"))

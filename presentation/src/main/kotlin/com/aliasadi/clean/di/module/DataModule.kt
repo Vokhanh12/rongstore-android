@@ -7,8 +7,7 @@ import com.aliasadi.data.api.MovieApi
 import com.aliasadi.data.db.favoritemovies.FavoriteMovieDao
 import com.aliasadi.data.db.movies.MovieDao
 import com.aliasadi.data.db.movies.MovieRemoteKeyDao
-import com.aliasadi.data.remote.http.StoreOwnerHttpAdapter
-import com.aliasadi.data.remote.http.StoreOwnerHttpApi
+import com.aliasadi.data.remote.http.IamHttpAdapter
 import com.aliasadi.data.repository.movie.MovieDataSource
 import com.aliasadi.data.repository.movie.MovieLocalDataSource
 import com.aliasadi.data.repository.movie.MovieRemoteDataSource
@@ -19,7 +18,7 @@ import com.aliasadi.data.repository.movie.favorite.FavoriteMoviesLocalDataSource
 import com.aliasadi.data.repository.user.UserDataSource
 import com.aliasadi.data.repository.user.UserDataSourceImpl
 import com.aliasadi.data.util.NetworkMonitorImpl
-import com.aliasadi.domain.port.StoreOwnerRemotePort
+import com.aliasadi.domain.port.IamRemotePort
 import com.aliasadi.domain.repository.MovieRepository
 import com.aliasadi.domain.usecase.AddMovieToFavorite
 import com.aliasadi.domain.usecase.CheckFavoriteStatus
@@ -28,6 +27,7 @@ import com.aliasadi.domain.usecase.GetMovieDetails
 import com.aliasadi.domain.usecase.RemoveMovieFromFavorite
 import com.aliasadi.domain.usecase.SearchMovies
 import com.aliasadi.domain.util.NetworkMonitor
+import com.aliasadi.iam.client.api.IamServiceApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -130,9 +130,9 @@ class DataModule {
 
     @Provides
     @Singleton
-    fun provideStoreOwnerRemotePort(
-        api: StoreOwnerHttpApi
-    ): StoreOwnerRemotePort {
-        return StoreOwnerHttpAdapter(api)
+    fun provideIamRemotePort(
+        api: IamServiceApi
+    ): IamRemotePort {
+        return IamHttpAdapter(api)
     }
 }
