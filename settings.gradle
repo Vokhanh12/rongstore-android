@@ -11,3 +11,4 @@ include ':domain'
 include ':data'
 include ':core-test'
 include(':generated:iam-client')
+include ':core'

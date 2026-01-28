@@ -83,6 +83,7 @@ dependencies {
     // Kover Coverage (All Modules)
     kover(project(":data"))
     kover(project(":domain"))
+    kover(project(":core"))
 
     // Kotlin
     implementation(libs.kotlin.stdlib.jdk7)

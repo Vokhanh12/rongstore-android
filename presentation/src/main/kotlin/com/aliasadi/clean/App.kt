@@ -2,7 +2,6 @@ package com.aliasadi.clean
 
 import android.app.Application
 import android.util.Log
-import androidx.startup.AppInitializer
 import androidx.work.Configuration
 import androidx.work.ExistingWorkPolicy
 import androidx.work.WorkManager

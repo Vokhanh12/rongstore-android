@@ -20,7 +20,7 @@ android {
         minSdk = libs.versions.minSdk.get().toInt()
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         //buildConfigField("String", "BASE_URL", "\"https://movies-mock-server.vercel.app/\"")
-        buildConfigField("String", "BASE_URL", "\"https://ce12aaa2a11a.ngrok-free.app/\"")
+        buildConfigField("String", "BASE_URL", "\"https://poker-surrounded-tension-tomorrow.trycloudflare.com\"")
 
     }
 
@@ -109,8 +109,9 @@ dependencies {
     implementation("io.grpc:grpc-kotlin-stub:1.4.1")
     implementation("com.google.protobuf:protobuf-java:3.25.3")
     implementation("com.google.api.grpc:proto-google-common-protos:2.29.0")
-    api(project(":domain"))
     implementation(libs.androidx.datastore.core)
+    api(project(":domain"))
+    api(project(":core"))
     testImplementation(project(":core-test"))
 
     // Room
@@ -128,6 +129,12 @@ dependencies {
     // Datastore
     implementation(libs.androidx.datastore.preferences.core)
     implementation(libs.androidx.datastore.preferences)
+
+    // Hilt
+    implementation(libs.hilt.dagger.android)
+    implementation(libs.hilt.work)
+    ksp(libs.hilt.dagger.compiler)
+    ksp(libs.hilt.compiler)
 
     implementation(libs.guava)
 }

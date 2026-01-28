@@ -5,7 +5,7 @@ import android.content.SharedPreferences
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.work.WorkManager
-import com.aliasadi.clean.di.AppSettingsSharedPreference
+import com.aliasadi.core.di.AppSettingsSharedPreference
 import com.aliasadi.data.util.NetworkMonitorImpl
 import com.aliasadi.data.util.DiskExecutor
 import com.aliasadi.domain.model.entities.userSettingPreferences
@@ -50,7 +50,6 @@ class AppModule {
     @Singleton
     @Provides
     fun provideMoshi(): Moshi = Moshi.Builder().build()
-
 
     @Singleton
     @Provides

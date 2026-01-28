@@ -11,9 +11,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.navigation.compose.rememberNavController
-import com.aliasadi.clean.di.AppSettingsSharedPreference
 import com.aliasadi.clean.ui.theme.AppTheme
 import com.aliasadi.clean.ui.widget.NoInternetConnectionBanner
+import com.aliasadi.core.di.AppSettingsSharedPreference
 import com.aliasadi.domain.util.NetworkMonitor
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject

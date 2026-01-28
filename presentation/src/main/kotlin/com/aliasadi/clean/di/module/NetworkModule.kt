@@ -1,9 +1,12 @@
 package com.aliasadi.clean.di.module
 
+import android.content.SharedPreferences
 import android.util.Log
+import com.aliasadi.core.di.AppSettingsSharedPreference
 import com.aliasadi.data.BuildConfig
 import com.aliasadi.data.api.MovieApi
 import com.aliasadi.data.auth.ITokenProvider
+import com.aliasadi.data.auth.SharedPrefsTokenProvider
 import com.aliasadi.data.remote.http.AuthInterceptor
 import com.aliasadi.iam.client.api.IamServiceApi
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
@@ -37,6 +40,14 @@ class NetworkModule {
 
     @Provides
     @Singleton
+    fun provideTokenProvider(
+        @AppSettingsSharedPreference prefs: SharedPreferences
+    ): ITokenProvider {
+        return SharedPrefsTokenProvider(prefs)
+    }
+
+    @Provides
+    @Singleton
     fun provideOkHttpClient(tokenProvider: ITokenProvider): OkHttpClient {
 
         val loggingInterceptor = HttpLoggingInterceptor { message ->
@@ -50,8 +61,8 @@ class NetworkModule {
         }
 
         return OkHttpClient.Builder()
-            .addInterceptor(loggingInterceptor)
             .addInterceptor(AuthInterceptor(tokenProvider))
+            .addInterceptor(loggingInterceptor)
             .build()
     }
 

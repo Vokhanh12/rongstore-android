@@ -2,9 +2,9 @@
 
 package com.aliasadi.clean.di.module
 
-import com.aliasadi.clean.di.DefaultDispatcher
-import com.aliasadi.clean.di.IoDispatcher
-import com.aliasadi.clean.di.MainDispatcher
+import com.aliasadi.core.di.DefaultDispatcher
+import com.aliasadi.core.di.IoDispatcher
+import com.aliasadi.core.di.MainDispatcher
 import com.aliasadi.domain.util.DispatchersProvider
 import com.aliasadi.data.util.DispatchersProviderImpl
 import dagger.Module

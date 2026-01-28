@@ -56,6 +56,9 @@ datastoreCore = "1.1.7"
 accompanist = "0.37.3"
 protobufPlugin = "0.9.4"
 guava = "33.3.1-android"
+junitVersion = "1.3.0"
+espressoCore = "3.7.0"
+material = "1.10.0"
 
 
 [libraries]
@@ -150,6 +153,9 @@ androidx-datastore-core = { group = "androidx.datastore", name = "datastore-core
 
 # Permission
 accompanist-permissions = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidAppGradlePlugin" }
